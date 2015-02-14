@@ -62,20 +62,65 @@ if(!isServer) exitWith {};
 // The idea here is that lastCapturePointDetails holds our structured data checked
 // every loop.
 //
-// 1 = Name of capture marker
-// 2 = List of players in that area
-// 4 = Team owning the point currently
-// 3 = Time in seconds during which the area has been held
-// 3 = Time in seconds during which the area has been occupied by enemies
+
 currentTerritoryDetails = [];
+	//		0 = Marker ID
+	// 		1 = Name of capture marker
+	// 		2 = List of players in that area [uids]
+	// 		3 = List of players in that area [player objects] (set to null array)
+	// 		4 = side owning the point currently
+	// 		5 = Time in seconds during which the area has been held
+	//		6 = Time in seconds during which the area has been contested (set to 0)
 
-{
-	_markerName = _x select 0;
-	//diag_log format ["Adding %1 to lastCapturePointDetails", _markerName];
-	currentTerritoryDetails pushBack [_markerName, [], sideUnknown, 0, 0];
-} forEach (["config_territory_markers", []] call getPublicVar);
-
+// set A3W_currentTerritoryOwners to empty
 A3W_currentTerritoryOwners = [];
+
+diag_log "monitorTerritories initialization start";
+
+// Set up for persistence data, if available, and set initial territory cap states
+_territoriesInitialState=[];
+_territorySavingOn = ["A3W_territorySaving"] call isConfigOn;
+if (_territorySavingOn) then
+{
+	private ["_newTerritoryOwners"];
+	diag_log "monitorTerritories _territorySavingOn is TRUE ... tSave/tLoad invoke";
+	call compile preprocessFileLineNumbers "persistence\server\world\tSaveInit.sqf";  // will compile the single territory save method to fn_saveTerritory
+	currentTerritoryDetails =  call compile preprocessFileLineNumbers "persistence\server\world\tLoad.sqf";  
+	diag_log format ["monitorTerritories: tLoad returned %1 currentTerritoryDetails", count currentTerritoryDetails];
+	
+	_newTerritoryOwners = [];
+	
+	{
+		diag_log _x;
+		
+		// get the occupier status
+		_currentTerritoryName = _x select 1;
+		_currentTerritoryOwner = _x select 4;
+		
+		//diag_log format ["currentTerritoryDetails rec: %1, %2, %3, %4, %5, %6, ", _currentTerritoryName, _x select 1, _x select 2, _currentTerritoryOwner, _x select 4, _x select 5, _x select 6];
+		//diag_log format ["        _currentTerritoryOwner is type %1", typeName   _currentTerritoryOwner];
+		if (_currentTerritoryOwner != sideUnknown) then {
+			// update the map to show that this territory is occupied
+			_newMarkerColor = [_currentTerritoryOwner] call getTeamMarkerColor;
+			_currentTerritoryName setMarkerColor _newMarkerColor;
+		};
+		
+		_newTerritoryOwners pushBack [_currentTerritoryName,_currentTerritoryOwner];
+	} foreach currentTerritoryDetails;
+	
+	// Set A3W_currentTerritoryOwners with results from load
+	A3W_currentTerritoryOwners = _newTerritoryOwners;
+	publicVariable "A3W_currentTerritoryOwners";	
+} else {
+	diag_log "monitorTerritories _territorySavingOn is FALSE ... populating currentTerritoryDetails with default data";
+	{
+		_markerName = _x select 1;
+		//diag_log format ["Adding %1 to lastCapturePointDetails", _markerName];
+		currentTerritoryDetails pushBack [0,_markerName, [], [], sideUnknown, 0, 0];
+	} forEach (["config_territory_markers", []] call getPublicVar);
+};
+
+
 
 // This will track how long each loop takes, to monitor how long it really ends up taking when
 // the server is lagging to shit
@@ -200,6 +245,8 @@ _getTeamName =
 	_teamName
 };
 
+// arg: a player object
+// ret: BLUFOR, OPFOR side object or group object if Independent
 _getPlayerTeam =
 {
 	private ["_group", "_side"];
@@ -215,7 +262,7 @@ _teamCountsForPlayerArray =
 {
 	//diag_log format["_teamCountsForPlayerArray called with %1", _this];
 
-	private ["_players", "_teamCounts", "_contested", "_dominantTeam", "_added", "_playerTeam", "_team1", "_team1count", "_team2count"];
+	private ["_uids", "_players", "_teamCounts", "_contested", "_dominantTeam", "_newTeamCounts", "_playerTeam", "_added", "_team1", "_team1count", "_team2count", "_i"];
 	_players = _this select 0;
 
 	_teamCounts = [];
@@ -225,8 +272,11 @@ _teamCountsForPlayerArray =
 
 	if (count _players > 0) then
 	{
+		// we have an array of players from the _newTeamCounts setter call
 		{
 			_playerTeam = _x call _getPlayerTeam;
+			// diag_log format ["call to _getPlayerTeam for %1 returned '%2'", _x, _playerTeam];
+			
 			_added = false;
 
 			{
@@ -321,12 +371,11 @@ _handleTeamCounts =
 
 _updatePlayerTerritoryActivity =
 {
-	private ["_newTerritoryOccupiers", "_action", "_currentTerritoryOwner", "_newDominantTeam", "_player", "_playerUID", "_playerTeam", "_territoryActivity"];
-
-	//diag_log format["_updatePlayerTerritoryActivity given %1", _this];
+	private ["_updatePlayerTerritoryActivity", "_currentTerritoryOwner", "_newDominantTeam", "_action", "_player", "_playerUID", "_playerTeam","_territoryActivity"];
+	// diag_log format["_updatePlayerTerritoryActivity given %1", _this];
 
 	_currentTerritoryOwner = _this select 0;
-	_newTerritoryOccupiers = _this select 1;
+	_newTerritoryOccupiersPlayers = _this select 1;
 	_newDominantTeam = _this select 2;
 	_action = _this select 3;
 
@@ -363,24 +412,29 @@ _updatePlayerTerritoryActivity =
 
 		//diag_log format["Setting TERRITORY_ACTIVITY to %1 for %2", _territoryActivity, _player];
 		_x setVariable ["TERRITORY_ACTIVITY", _territoryActivity, true];
-	} forEach _newTerritoryOccupiers;
+	} forEach _newTerritoryOccupiersPlayers;
 };
 
 
 _handleCapPointTick = {
-	private ["_currentTerritoryData", "_newTerritoryData", "_count", "_currentTerritoryDetails", "_i", "_currentTerritoryName", "_currentTerritoryOccupiers", "_currentTerritoryChrono", "_currentTerritoryTimer", "_newTerritoryDetails", "_newTerritoryDetails", "_newTerritoryName", "_newTerritoryOccupiers", "_currentTeamCounts", "_newTeamCounts", "_newDominantTeam", "_currentDominantTeam", "_action", "_curCapPointTimer", "_newMarkerColor", "_playerUIDs", "_msg", "_configEntry", "_capturePointHumanName", "_value"];
-
-	//diag_log format["_handleCapPointTick called with %1", _this];
+	private ["_currentTerritoryData", "_newTerritoryData", "_count", "_loopStart", "_currentTerritoryDetails", "_i", "_currentTerritoryName", "_currentTerritoryOccupiersUIDs", 
+	"_currentTerritoryOccupiersPlayers",	"_currentTerritoryOwner", "_currentTerritoryChrono", "_currentTerritoryTimer", "_newTerritoryDetails", "_newTerritoryName", "_newTerritoryOccupiersPlayers", 
+	"_newTerritoryOcupiersUIDs",
+	"_currentTeamCounts", "_newTeamCounts", 	"_currentDominantTeam", "_newDominantTeam", "_newContestedStatus", "_action", "_newCapPointTimer", "_currentDominantTeamName", "_configEntry", 
+	"_territoryDescriptiveName", "_newMarkerColor", "_value", "_currentTerritoryOccupiers"];
+	
+	// diag_log format["_handleCapPointTick called with %1", _this];
 
 	// Into this method comes two arrays. One is the master array called _currentTerritoryData, containing all the
 	// cap points, known players within that area, and the timer count for that area.
-
-	// The second array is the current list of cap points and players at that location
-
+	// The second array is the current list of cap points and UID's of players at that location
 	// These are reconciled by calls to _teamCountsForPlayerArray and _handleTeamCounts
 
-	_newTerritoryData = _this select 0;
-	_currentTerritoryData = _this select 1;
+	_newTerritoryData = _this select 0;			// i.e. territoryOccupiersMapConsolidated: [territoryName, [[UID,...],[player,...]]]
+	//[_territoryOccupiersMapConsolidated, _territoryName, [_uid, _player]] call fn_addToPairs;  // key,[value] where key is territoryName, [value] is a two elem array of player UIDs, player objs
+	// diag_log format["_handleCapPointTick set _newTerritoryData=%1",_newTerritoryData];
+	
+	_currentTerritoryData = _this select 1;  	// i.e. the global currentTerritoryDetails array  
 
 	// The data structure is as follows:
 	// [
@@ -397,13 +451,14 @@ _handleCapPointTick = {
 
 		_currentTerritoryDetails = _currentTerritoryData select _i;
 
-		_currentTerritoryName = _currentTerritoryDetails select 0;
-		_currentTerritoryOccupiers = _currentTerritoryDetails select 1;
-		_currentTerritoryOwner = _currentTerritoryDetails select 2;
-		_currentTerritoryChrono = _currentTerritoryDetails select 3;
-		_currentTerritoryTimer = _currentTerritoryDetails select 4;
+		_currentTerritoryID = _currentTerritoryDetails select 0;				// INT ID
+		_currentTerritoryName = _currentTerritoryDetails select 1;				// STRING markerName
+		_currentTerritoryOccupiersUIDs = _currentTerritoryDetails select 2;		// [uid,uid,uid,...]
+		_currentTerritoryOccupiersPlayers = _currentTerritoryDetails select 3;	// [player, player, player, ...]
+		_currentTerritoryOwner = _currentTerritoryDetails select 4;			// SIDE 
+		_currentTerritoryChrono = _currentTerritoryDetails select 5;			// INTEGER timeHeld
+		_currentTerritoryTimer = _currentTerritoryDetails select 6;			// INTEGER timeOccupied by enemy
 
-		//diag_log format["Processing point %1", _currentTerritoryName];
 
 		// Use BIS_fnc_conditionalSelect since we can't sort arrays using strings FFS.
 		// This is slower than my plan to have both _newTerritoryData and _currentTerritoryData sorted in the same way to allow
@@ -411,7 +466,9 @@ _handleCapPointTick = {
 
 		//diag_log format["Searching _newTerritoryData for %1", _currentTerritoryName];
 
-		_newTerritoryDetails = [_newTerritoryData, { _x select 0 == _currentTerritoryName }] call BIS_fnc_conditionalSelect;
+		// get the record out of _newTerritoryData where the territory name matches the working _currentTerritoryDeatils rec as a 1 element array 
+		_newTerritoryDetails = [_newTerritoryData, { _x select 0 == _currentTerritoryName }] call BIS_fnc_conditionalSelect;  // [territoryName, [uids,players]]
+		// _newTerritoryDetails : [ [territoryName, [player, player, ...]]]
 
 		// If territory is is held by anyone, update chrono
 		if !(_currentTerritoryOwner isEqualTo sideUnknown) then
@@ -421,30 +478,42 @@ _handleCapPointTick = {
 
 		//diag_log format["BIS_fnc_conditionalSelect found _newTerritoryDetails as %1", _newTerritoryDetails];
 
-		// We have people at this territory?
+		// Do we have ANY people in this territory, i.e., does a _newTerritoryDetails rec exist?
 		if (count _newTerritoryData > 0 && {count _newTerritoryDetails > 0}) then
 		{
-			_newTerritoryDetails = _newTerritoryDetails select 0;
+		
+			// diag_log format["Processing point %1 with currentTerritoryData record='%2'", _currentTerritoryName, _currentTerritoryDetails];
+
+			_newTerritoryDetails = _newTerritoryDetails select 0;  // extract the single element array rec to a var of the same name
+			// _newTerritoryDetails : [territoryName, [player, player, ...]]
 
 			_newTerritoryName = _newTerritoryDetails select 0;
-			_newTerritoryOccupiers = _newTerritoryDetails select 1;
+			// diag_log format ["_handleCapPointTick has _newTerritoryDetails = %1", _newTerritoryDetails];
+			
+			_newTerritoryOccupiersPlayers = _newTerritoryDetails select 1;  // array of players, i.e., [player, player, ...]
 
-			// Ok players have hanged. Contested or not?
-			_currentTeamCounts = [_currentTerritoryOccupiers] call _teamCountsForPlayerArray;
-			_newTeamCounts = [_newTerritoryOccupiers] call _teamCountsForPlayerArray;
-
+			// diag_log format ["_handleCapPointTick for %1 has _newTerritoryName=%2 _newTerritoryOccupiersPlayers=%3", _currentTerritoryName, _newTerritoryName, _newTerritoryOccupiersPlayers];
+			
+			// There are players in the territory.  Is it contested or not?
+			// diag_log format ["_handleCapPointTick for %1 calling _teamCountsForPlayerArray with _currentTerritoryOccupiersPlayers=%2]", _currentTerritoryName, _currentTerritoryOccupiersPlayers];
+			_currentTeamCounts = [_currentTerritoryOccupiersPlayers] call _teamCountsForPlayerArray;  
+			// diag_log format ["     call returned _currentTeamCounts=%1", _currentTeamCounts];
+			// diag_log format ["_handleCapPointTick calling _teamCountsForPlayerArray with _newTerritoryOccupiersPlayers=%1", _newTerritoryOccupiersPlayers];
+			_newTeamCounts = [_newTerritoryOccupiersPlayers] call _teamCountsForPlayerArray;
+			// diag_log format ["     call returned _newTeamCounts=%1", _newTeamCounts];
+			
 			_currentDominantTeam = _currentTeamCounts select 2;
 			_newDominantTeam = _newTeamCounts select 2;
 			_newContestedStatus = _newTeamCounts select 1;
 
-			//diag_log format["  _currentTeamCounts: %1", _currentTeamCounts];
-			//diag_log format["  _newTeamCounts: %1", _newTeamCounts];
+			// diag_log format["_handleCapPointTick   _currentTeamCounts: %1", _currentTeamCounts];
+			// diag_log format["_handleCapPointTick   _newTeamCounts: %1", _newTeamCounts];
 
 			_action = [_currentTeamCounts, _newTeamCounts] call _handleTeamCounts;
 
 			_newCapPointTimer = _currentTerritoryTimer;
 
-			//diag_log format["_newContestedStatus is %1, _currentTerritoryOwner is %2, _newDominantTeam is %3, action is %4", _newContestedStatus, _currentTerritoryOwner, _newDominantTeam, _action];
+			// diag_log format["_handleCapPointTick   _newContestedStatus is %1, _currentTerritoryOwner is %2, _newDominantTeam is %3, action is %4", _newContestedStatus, _currentTerritoryOwner, _newDominantTeam, _action];
 			////////////////////////////////////////////////////////////////////////
 
 			if (_newContestedStatus || !(_currentTerritoryOwner isEqualTo _newDominantTeam)) then
@@ -470,38 +539,53 @@ _handleCapPointTick = {
 					_newCapPointTimer = 0;
 				};
 
-				//diag_log format["---> %1 action is %2 with the timer at %3", _currentTerritoryName, _action, [_newCapPointTimer, _newDominantTeam, _currentDominantTeam]];
+				// diag_log format["_handleCapPointTick ---> %1 action is %2 with the timer at %3", _currentTerritoryName, _action, [_newCapPointTimer, _newDominantTeam, _currentDominantTeam]];
 
 				if (_newCapPointTimer >= _capturePeriod && !(_newDominantTeam isEqualTo _currentTerritoryOwner)) then
 				{
+					// The territory was captured on this iteration
+					
+					diag_log format ["_handleCapPointTick   Territory '%1' was captured by '%2'!", _currentTerritoryName, _newDominantTeam];
+					
 					_newMarkerColor = [_newDominantTeam] call getTeamMarkerColor;
-
-					// If the timer is above what we consider a successful capture and its not already theirs...
 					_currentTerritoryName setMarkerColor _newMarkerColor;
 
+					// get the config_territory_markers entry for this territory
 					_configEntry = [["config_territory_markers", []] call getPublicVar, { _x select 0 == _currentTerritoryName }] call BIS_fnc_conditionalSelect;
+					
 					_territoryDescriptiveName = (_configEntry select 0) select 1;
 					_value = (_configEntry select 0) select 2;
 
-					// Reset to zero
+					// dump what we got
+					// diag_log format ["_handleCapPointTick   call to get config_territory_markers entry returned:  name='%1' value='%2'", _territoryDescriptiveName, _value];
+					
+					// Reset to capTimer to zero
 					_newCapPointTimer = 0;
-					_currentTerritoryChrono = 0;
+					
+					// Reset Chrono to just above zero
+					_currentTerritoryChrono = 1;
 
-					//diag_log format["%1 captured point %2 (%3)", _newDominantTeam, _currentTerritoryName, _territoryDescriptiveName];
+					// diag_log format["_handleCapPointTick     %1 captured point %2 (%3)", _newDominantTeam, _currentTerritoryName, _territoryDescriptiveName];
 
 					[_currentTerritoryOwner, _newDominantTeam, _value, _currentTerritoryName, _territoryDescriptiveName] call _onCaptureFinished;
 					_currentTerritoryOwner = _newDominantTeam;
 
+					// call fn_saveTerritory to persist the newly changed territory state, if persistence is on
+					if (_territorySavingOn) then 
+					{
+						[_currentTerritoryID, _currentTerritoryName, _newTerritoryOccupiersPlayers, _currentTerritoryOwner, _currentTerritoryChrono, _newCapPointTimer] call fn_saveTerritory;
+					};
+					
 					// Increase capture score
 					{
 						if ([_x, _newDominantTeam] call _isInTeam) then
 						{
 							[_x, "captureCount", 1] call fn_addScore;
 						};
-					} forEach _currentTerritoryOccupiers;
+					} forEach _currentTerritoryOccupiersPlayers;
 				};
-
-				[_currentTerritoryOwner, _newTerritoryOccupiers, _newDominantTeam, _action] call _updatePlayerTerritoryActivity;
+				
+				[_currentTerritoryOwner, _newTerritoryOccupiersPlayers, _newDominantTeam, _action] call _updatePlayerTerritoryActivity;
 			};
 			/*else
 			{
@@ -509,23 +593,33 @@ _handleCapPointTick = {
 				_currentTerritoryData set [_i, [_currentTerritoryName, [], _currentTerritoryOwner, _currentTerritoryChrono, 0]];
 			};*/
 
+			// get UIDs of _newTerritoryOccupiersPlayers for saving into 
+			_newTerritoryOcupiersUIDs=[];
+			{
+				_newTerritoryOcupiersUIDs pushBack getPlayerUID _x;
+			} forEach _newTerritoryOccupiersPlayers;
+			
 			// Now ensure we're creating a mirror of _currentTerritoryDetails with all the new info so we can assign it
 			// at the end of this iteration
-			_currentTerritoryData set [_i, [_currentTerritoryName, _newTerritoryOccupiers, _currentTerritoryOwner, _currentTerritoryChrono, _newCapPointTimer]];
+			_currentTerritoryData set [_i, [_currentTerritoryID, _currentTerritoryName, _newTerritoryOcupiersUIDs, _newTerritoryOccupiersPlayers, _currentTerritoryOwner, _currentTerritoryChrono, _newCapPointTimer]];
+			
+			// diag_log format["_handleCapPointTick   Completed Processing point %1 with currentTerritoryData record='%2'", _currentTerritoryName, _currentTerritoryData select _i];
+			
 		}
 		else
 		{
 			// Nobody there
-			_currentTerritoryData set [_i, [_currentTerritoryName, [], _currentTerritoryOwner, _currentTerritoryChrono, 0]];
+			_currentTerritoryData set [_i, [_currentTerritoryID, _currentTerritoryName, [], [], _currentTerritoryOwner, _currentTerritoryChrono, 0]];
 		};
 	};
 
 	_currentTerritoryData
 };
 
+_fn_territoryPayroll = compile preprocessFileLineNumbers "territory\server\territoryPayroll.sqf";
 if (["A3W_territoryPayroll"] call isConfigOn) then
 {
-	execVM "territory\server\territoryPayroll.sqf";
+	[] spawn _fn_territoryPayroll;
 };
 
 //////////////////////////////////////////////////////////////////////////////
@@ -534,7 +628,8 @@ if (["A3W_territoryPayroll"] call isConfigOn) then
 
 while {true} do
 {
-	private ["_territoryOccupiersMapSingle", "_territoryOccupiersMapConsolidated", "_newCapturePointDetails"];
+	private ["_initTime", "_territoryOccupiersMapSingle", "_curCapPoint", "_territoryOccupiersMapConsolidated", "_territoryName", "_player", "_players", "_newCapturePointDetails", "_newTerritoryOwners"];
+
 
 	_initTime = diag_tickTime;
 
@@ -546,6 +641,9 @@ while {true} do
 	{
 		private ["_curCapPoint", "_uid"];
 
+		// Mark / sweep old players who no longer need activity entries
+		_uid = getPlayerUID _x;
+
 		if (alive _x) then
 		{
 			// We don't see dead people. Hahaha...ha!
@@ -556,12 +654,9 @@ while {true} do
 				// Make the entry
 				//diag_log format["%1 has TERRITORY_OCCUPATION for %2", name _x, _curCapPoint];
 				//diag_log format["CAP PLAYER LOOP: Adding %1 to _territoryOccupiersMapSingle at %2", _x, _curCapPoint];
-				_territoryOccupiersMapSingle pushBack [_curCapPoint, _x];
+				_territoryOccupiersMapSingle pushBack [_curCapPoint, _uid, _x];
 			};
 		};
-
-		// Mark / sweep old players who no longer need activity entries
-		_uid = getPlayerUID _x;
 
 		if (_uid in _oldPlayersWithTerritoryActivity) then
 		{
@@ -584,13 +679,23 @@ while {true} do
 
 	if (count _territoryOccupiersMapSingle > 0) then
 	{
-		//diag_log format["Converting %1 _territoryOccupiersMapSingle entries into _territoryOccupiersMapConsolidated", count _territoryOccupiersMapSingle];
-
+		// diag_log format["Converting %1 _territoryOccupiersMapSingle entries into _territoryOccupiersMapConsolidated", count _territoryOccupiersMapSingle];
+		
+		// consolidate the array of [currentCapPoint, uid, player] entries to an array of [currentCapPoint, [[uid,uid,..],[player, player, ...]]] pairs
 		{
 			_territoryName = _x select 0;
-			_player = _x select 1;
-			[_territoryOccupiersMapConsolidated, _territoryName, [_player]] call fn_addToPairs;
+			_uid = _x select 1;
+			_player = _x select 2;
+			[_territoryOccupiersMapConsolidated, _territoryName, [_player]] call fn_addToPairs;  // key,[value] where key is territoryName, [value] is an array of player objs
 		} forEach _territoryOccupiersMapSingle;
+		
+		// dump territoryOccupiersMapConsolidated
+		// diag_log "_territoryOccupiersMapConsolidated dump:";
+		{
+			_territoryName = _x select 0;
+			_players = _x select 1;
+			// diag_log format ["Entry:  %1 ->  %2:  %3", _x, _territoryName, _players];
+		} forEach _territoryOccupiersMapConsolidated;
 	};
 
 
@@ -599,7 +704,7 @@ while {true} do
 	currentTerritoryDetails = _newCapturePointDetails;
 
 	_newTerritoryOwners = [];
-	{ _newTerritoryOwners pushBack [_x select 0, _x select 2] } forEach _newCapturePointDetails;
+	{ _newTerritoryOwners pushBack [_x select 0, _x select 3] } forEach _newCapturePointDetails;
 
 	if !(A3W_currentTerritoryOwners isEqualTo _newTerritoryOwners) then
 	{

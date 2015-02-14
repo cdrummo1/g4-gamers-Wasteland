@@ -22,8 +22,8 @@ _JIP = _this select 1;
 _markers = [];
 
 {
-	_markerName = _x select 0;
-	_markerTeam = _x select 2;
+	_markerName = _x select 1;
+	_markerTeam = _x select 4;
 
 	if (typeName _markerTeam == "GROUP" || {_markerTeam != sideUnknown}) then
 	{
