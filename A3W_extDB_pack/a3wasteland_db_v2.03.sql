@@ -328,31 +328,6 @@ CREATE TABLE IF NOT EXISTS `BankTransferLog` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
--- -----------------------------------------------------
--- Table `TerritoryCaptureStatus`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `TerritoryCaptureStatus` (
-  `ServerID` INT UNSIGNED NOT NULL,
-  `MapID` INT UNSIGNED NOT NULL,
-  `LastModified` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  `MarkerName` VARCHAR(256) NOT NULL,
-  `Occupiers` XXXXXXXXXXXXXXXXXX
-  `SideHolder` VARCHAR(32) NOT NULL,
-  `TimeHeld` FLOAT NOT NULL,
-  INDEX `fk_TerritoryCaptureStatus_ServerMap_idx` (`MapID` ASC),
-  INDEX `fk_TerritoryCaptureStatus_ServerInstance_idx` (`ServerID` ASC),
-  UNIQUE INDEX `idx_TerritoryCaptureStatus_uniqueMarkName` (`MarkerName` ASC, `ServerID` ASC, `MapID` ASC),
-  CONSTRAINT `fk_TerritoryCaptureStatus_ServerMap`
-    FOREIGN KEY (`MapID`)
-    REFERENCES `ServerMap` (`ID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
-  CONSTRAINT `fk_TerritoryCaptureStatus_ServerInstance`
-    FOREIGN KEY (`ServerID`)
-    REFERENCES `ServerInstance` (`ID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
 
 
 SET SQL_MODE=@OLD_SQL_MODE;

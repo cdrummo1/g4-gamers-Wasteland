@@ -24,6 +24,8 @@ if (_moneySaving) then
 
 _result = ([format ["checkPlayerSave:%1:%2", _UID, call A3W_extDB_MapID], 2] call extDB_Database_async) select 0;
 
+diag_log format ["loadAccount call to checkPlayerSave returned '%1'",_result];
+
 if (!_result) then
 {
 	_data =

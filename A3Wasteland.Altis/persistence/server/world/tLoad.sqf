@@ -33,11 +33,12 @@ _territories = call compile preprocessFileLineNumbers format ["%1\getTerritories
 diag_log format["tLoad call to getTerritories returned %1 recs in _territories", count _territories];
 
 if (count _territories < count (["config_territory_markers", []] call getPublicVar)) then {
-	diag_log format ["A3Wasteland - mismatch in saved territory info ... load aborted; returning config_territory_markers defaults."];
+	diag_log format ["A3Wasteland - mismatch in saved territory info ... initializing with data from config_territory_markers"];
 	{
 		_markerName = _x select 0;
-		//diag_log format ["Adding %1 to lastCapturePointDetails", _markerName];
-		_territories pushBack [_markerName, [], sideUnknown, 0, 0];
+		
+		_territories pushBack [_terCount,_markerName, [], [], sideUnknown, 0, 0];
+		_terCount = _terCount + 1;
 	} forEach (["config_territory_markers", []] call getPublicVar);
 } else {
 	diag_log format ["A3Wasteland - world persistence loaded %1 territories from %2", count _territories, call A3W_savingMethodName];
