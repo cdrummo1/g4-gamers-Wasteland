@@ -30,6 +30,14 @@ if (_territorySavingOn) then
 			diag_log format ["Territory %1 is owned by %2 ... set territoryCapped to true", _territoryName, _territoryOwner];
 		};
 	} forEach currentTerritoryDetails;
+	//		0 = Marker ID
+	// 		1 = Name of capture marker
+	// 		2 = List of players in that area [uids]
+	// 		3 = List of players in that area [player objects] (set to null array)
+	// 		4 = side owning the point currently
+	// 		5 = Time in seconds during which the area has been held
+	//		6 = Time in seconds during which the area has been contested (set to 0)
+
 };
 
 while {true} do

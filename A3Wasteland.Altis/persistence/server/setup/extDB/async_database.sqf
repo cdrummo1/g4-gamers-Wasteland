@@ -10,7 +10,7 @@
 	Parameters:
 		0: STRING (Query to be ran).
 		1: INTEGER (1 = ASYNC + not return for update/insert, 2 = ASYNC + return for query's).
-		3: BOOL (False to return a single array, True to return multiple entries mainly for garage).
+		2: BOOL (False to return a single array, True to return multiple entries mainly for garage).
 */
 
 private["_queryStmt","_queryResult","_key","_mode","_return","_loop"];

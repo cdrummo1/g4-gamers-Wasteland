@@ -6,6 +6,7 @@
 //  Argument:  array as defined in _vars, below with info for one territory, 
 
 private ["_terRec", "_currentTerritoryData", "_i", "_currentTerritoryName", "_newTerritoryOccupiersPlayers", "_currentTerritoryOwner", "_currentTerritoryChrono", "_newCapPointTimer", "_markerName", "_vars", "_strToSide", "_fileName", "_terName", "_currentTerritoryOccupiersPlayers", "_currentTerritoryOccupiersUIDs", "_currentTerritoryTimer", "_props"];
+
 _terRec = _this;
 
 diag_log format ["saveTerritory got '%1' as arg", _terRec];

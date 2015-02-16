@@ -15,6 +15,7 @@
 
 private ["_sideStr", "_vars", "_columns", "_result", "_result2", "_territories", "_terData", "_currentTerritoryOwner", "_updateValues", "_markerName", "_markerID"];
 
+
 _strToSide =
 {
 	_sideStr = _this;
@@ -48,7 +49,7 @@ _columns = "";
 
 _result = [format ["getServerTerritoriesCaptureStatus:%1:%2:%3", call A3W_extDB_ServerID, call A3W_extDB_MapID, _columns], 2, true] call extDB_Database_async;
 
-//diag_log format ["Call to getServerTerritoriesCaptureStatus sql returned %1 recs",(count _result)];
+diag_log format ["[INFO] getTerritories: Call to getServerTerritoriesCaptureStatus sql returned %1 recs",(count _result)];
 
 _territories = [];
 
@@ -64,7 +65,7 @@ _territories = [];
 	_currentTerritoryOwner = (_terData select 3 select 1) call _strToSide; 
 
 	
-	diag_log format ["getTerritories loaded [%1, %2, %3, %4, %5]",_terData select 0 select 1, _terData select 1 select 1, _currentTerritoryOwner, _terData select 3 select 1, _terData select 4 select 1];
+	diag_log format ["[INFO] getTerritories: loaded [%1, %2, %3, %4, %5]",_terData select 0 select 1, _terData select 1 select 1, _currentTerritoryOwner, _terData select 3 select 1, _terData select 4 select 1];
 	//		0 = Marker ID
 	// 		1 = Name of capture marker
 	// 		2 = List of players in that area [uids]
@@ -73,7 +74,7 @@ _territories = [];
 	// 		5 = Time in seconds during which the area has been held
 	//		6 = Time in seconds during which the area has been contested (set to 0)
 	_territories pushBack [_terData select 0 select 1, _terData select 1 select 1, _terData select 2 select 1, [], _currentTerritoryOwner, parseNumber (_terData select 4 select 1),0];
-	//					  Marker ID					MarkerName				Occupiers			    Occupiers, SideHolder,       timeHeld
+	//					  Marker ID					MarkerName				Occupiers			    Occupiers, SideHolder,       timeHeld, timeOccupied
 } forEach _result;
 
 // Check that a complete set of territories were loaded, & if not, create db & territories recs for any missing ones
@@ -81,7 +82,7 @@ if (count _territories < count (["config_territory_markers", []] call getPublicV
 	
 	_updateValues = "Occupiers = NULL, SideHolder = 'UNKNOWN', TimeHeld = 0";
 	
-	diag_log "A3Wasteland - mismatch in saved territory info ... initializing/updating with data from config_territory_markers";
+	diag_log "[INFO] A3Wasteland - mismatch in saved territory info ... initializing/updating with data from config_territory_markers";
 	
 	{
 		_markerName = _x select 0;
@@ -96,12 +97,16 @@ if (count _territories < count (["config_territory_markers", []] call getPublicV
 		
 		if (!_result2) then {
 			// need to create data for this marker
-			diag_log format ["Marker %1 does not exist in db ... creating record",_markerName];
+			diag_log format ["[INFO] getTerritories: Marker %1 does not exist in db ... creating record",_markerName];
 			
 			// create territory rec w/ 'single array' (?) query return
 			_markerID = ([format ["newTerritoryCaptureStatus:%1:%2:%3", call A3W_extDB_ServerID, call A3W_extDB_MapID, _markerName], 2, false] call extDB_Database_async) select 0;
-
-			diag_log format ["   assigned ID=%1 to Marker %2", _markerID, _markerName];
+			
+			// or ... 
+			//_markerID = ([format ["newTerritoryCaptureStatus:%1:%2:%3", call A3W_extDB_ServerID, call A3W_extDB_MapID, _markerName], 2, false] call extDB_Database_async) select 0 select 0;
+		
+		
+			diag_log format ["[INFO] getTerritories:   assigned ID=%1 to Marker %2", _markerID, _markerName];
 			
 			[format ["updateTerritoryCaptureStatus:%1:", _markerID] + _updateValues] call extDB_Database_async;
 			

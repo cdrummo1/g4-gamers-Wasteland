@@ -4,6 +4,9 @@
 //	@file Name: tLoad.sqf
 //	@file Author: Munch, based on vLoad by AgentRev, JoSchaap, Austerror
 //
+// Revs:
+//	15-Feb-2015:  add support for extDB, moving config_territory_markers sync to individual getTerritories methods
+//
 // called from monitorTerritories, right before the main monitoring loop starts
 // loads data into an array that can be assigned to the global currentTerritoryDetails array
 
@@ -31,18 +34,6 @@ diag_log format["tLoad invoked with A3W_savingMethodDir = '%1'",call A3W_savingM
 _territories = call compile preprocessFileLineNumbers format ["%1\getTerritories.sqf", _methodDir];
 
 diag_log format["tLoad call to getTerritories returned %1 recs in _territories", count _territories];
-
-if (count _territories < count (["config_territory_markers", []] call getPublicVar)) then {
-	diag_log format ["A3Wasteland - mismatch in saved territory info ... initializing with data from config_territory_markers"];
-	{
-		_markerName = _x select 0;
-		
-		_territories pushBack [_terCount,_markerName, [], [], sideUnknown, 0, 0];
-		_terCount = _terCount + 1;
-	} forEach (["config_territory_markers", []] call getPublicVar);
-} else {
-	diag_log format ["A3Wasteland - world persistence loaded %1 territories from %2", count _territories, call A3W_savingMethodName];
-};
 
 // return the territories array
 _territories
