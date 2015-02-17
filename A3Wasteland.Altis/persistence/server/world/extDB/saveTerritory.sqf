@@ -34,11 +34,21 @@ if (count _currentTerritoryOccupiersPlayers >0) then
 	} forEach _currentTerritoryOccupiersPlayers;
 };
 
+//					  Marker ID,MarkerName,Occupiers,Occupiers,SideHolder,timeHeld
 _currentTerritoryID = _terRec select 0;
+_currentTerritoryMarkerName=_terRec select 1;
 _currentTerritoryOwner = _terRec select 3 call _sideToStr;
 _currentTerritoryChrono = _terRec select 4;
 
-_updateValues = format["Occupiers=%1,SideHolder=%2,TimeHeld=%3",_currentTerritoryOccupiersUIDs,_currentTerritoryOwner,_currentTerritoryChrono];
-[format ["updateTerritoryCaptureStatus:%1:", _markerID] + _updateValues] call extDB_Database_async;
+_props =
+[
+	["Occupiers", _currentTerritoryOccupiersUIDs],  		// array of UID strings
+	["SideHolder", _currentTerritoryOwnerString],  	// EAST, WEST, GUER, "UNKNOWN"
+	["TimeHeld", _currentTerritoryChrono]
+];
+_updateValues = [_props, 0] call extDB_pairsToSQL;
+[format ["updateTerritoryCaptureStatus:%1:", _currentTerritoryID] + _updateValues] call extDB_Database_async;
+
+diag_log format ["[INFO] saveTerritory: ran updateTerritoryCaptureStatus for %1 with ID=%2 updateValues=%3", _currentTerritoryMarkerName, _currentTerritoryID, _updateValues];
 
 nil
