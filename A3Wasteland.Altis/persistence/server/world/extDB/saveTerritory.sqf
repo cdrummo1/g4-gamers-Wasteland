@@ -37,7 +37,7 @@ if (count _currentTerritoryOccupiersPlayers >0) then
 //					  Marker ID,MarkerName,Occupiers,Occupiers,SideHolder,timeHeld
 _currentTerritoryID = _terRec select 0;
 _currentTerritoryMarkerName=_terRec select 1;
-_currentTerritoryOwner = _terRec select 3 call _sideToStr;
+_currentTerritoryOwnerString = _terRec select 3 call _sideToStr;
 _currentTerritoryChrono = _terRec select 4;
 
 _props =
