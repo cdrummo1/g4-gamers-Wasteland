@@ -4,6 +4,7 @@
 //	@file Name: territoryPayroll.sqf
 //	@file Author: AgentRev
 
+private ["_timeInterval", "_moneyAmount", "_territoryCapped", "_territorySavingOn", "_territoryName", "_territoryOccupiers", "_territoryOwner", "_territoryChrono", "_payouts", "_territoryId", "_added", "_team", "_count", "_money", "_message"];
 
 if (!isServer) exitWith {};
 
@@ -19,10 +20,7 @@ if (_territorySavingOn) then
 {
 	// see if the persistence load brought with it any capped territories
 	{
-		_territoryName = _x select 1;  // name
-		_territoryOccupiers = _x select 3;  // players
 		_territoryOwner = _x select 4;		// side
-		_territoryChrono = _x select 5;		// chrono
 		
 		if !(_territoryOwner isEqualTo sideUnknown) then
 		{
@@ -63,6 +61,7 @@ while {true} do
 	_payouts = [];
 
 	{
+		_territoryId = _x select 0;    // Id
 		_territoryName = _x select 1;  // name
 		_territoryOccupiers = _x select 3;  // players
 		_territoryOwner = _x select 4;		// side
@@ -92,9 +91,9 @@ while {true} do
 				};
 			};
 			
-			// update the persistence file, if saving is enabled
+			// update the persistence data, if saving is enabled
 			if (_territorySavingOn) then {
-				[_territoryName, _territoryOccupiers, _territoryOwner, _territoryChrono, 0] call fn_saveTerritory;
+				[_territoryId, _territoryName, _territoryOccupiers, _territoryOwner, _territoryChrono, 0] call fn_saveTerritory;
 			};
 		};
 	} forEach currentTerritoryDetails;

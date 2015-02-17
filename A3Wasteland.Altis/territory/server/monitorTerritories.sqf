@@ -80,6 +80,8 @@ diag_log "monitorTerritories initialization start";
 // Set up for persistence data, if available, and set initial territory cap states
 _territoriesInitialState=[];
 _territorySavingOn = ["A3W_territorySaving"] call isConfigOn;
+_territoryLoggingOn = ["A3W_territoryLogging"] call isConfigOn && {A3W_savingMethod isEqualTo "extDB"};
+
 if (_territorySavingOn) then
 {
 	private ["_newTerritoryOwners"];
@@ -175,7 +177,7 @@ _onCaptureFinished =
 {
 	private ["_oldTeam", "_captureTeam", "_captureValue", "_captureName", "_captureDescription", "_descriptiveTeamName", "_otherTeams", "_captureColor", "_groupCaptures", "_msgWinners", "_msgOthers"];
 
-	//diag_log format["_onCapture called with %1", _this];
+	diag_log format["_onCapture called with %1", _this];
 
 	_oldTeam = _this select 0;
 	_captureTeam = _this select 1;
@@ -274,7 +276,7 @@ _teamCountsForPlayerArray =
 	{
 		// we have an array of players from the _newTeamCounts setter call
 		{
-			_playerTeam = _x call _getPlayerTeam;
+			_playerTeam = _x call _getPlayerTeam;  // side or group if Indy
 			// diag_log format ["call to _getPlayerTeam for %1 returned '%2'", _x, _playerTeam];
 			
 			_added = false;
@@ -539,7 +541,7 @@ _handleCapPointTick = {
 					_newCapPointTimer = 0;
 				};
 
-				// diag_log format["_handleCapPointTick ---> %1 action is %2 with the timer at %3", _currentTerritoryName, _action, [_newCapPointTimer, _newDominantTeam, _currentDominantTeam]];
+				diag_log format["_handleCapPointTick ---> %1 action is %2 with the timer at %3", _currentTerritoryName, _action, [_newCapPointTimer, _newDominantTeam, _currentDominantTeam]];
 
 				if (_newCapPointTimer >= _capturePeriod && !(_newDominantTeam isEqualTo _currentTerritoryOwner)) then
 				{
@@ -570,11 +572,19 @@ _handleCapPointTick = {
 					[_currentTerritoryOwner, _newDominantTeam, _value, _currentTerritoryName, _territoryDescriptiveName] call _onCaptureFinished;
 					_currentTerritoryOwner = _newDominantTeam;
 
-					// call fn_saveTerritory to persist the newly changed territory state, if persistence is on
+					
 					if (_territorySavingOn) then 
 					{
+						// call fn_saveTerritory to persist the newly changed territory state, if persistence is on
 						[_currentTerritoryID, _currentTerritoryName, _newTerritoryOccupiersPlayers, _currentTerritoryOwner, _currentTerritoryChrono, _newCapPointTimer] call fn_saveTerritory;
+						
+						// add a territory capture log event if we're using extDB
+						if (_territoryLoggingOn) then {
+							[_currentTerritoryID, _currentTerritoryName, _newTerritoryOccupiersPlayers, _currentTerritoryOwner] call fn_logTerritoryCapture;
+						};
 					};
+					
+					
 					
 					// Increase capture score
 					{

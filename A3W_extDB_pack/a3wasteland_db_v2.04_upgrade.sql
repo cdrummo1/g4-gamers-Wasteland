@@ -7,55 +7,60 @@ SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
 SET @OLD_FOREIGN_KEY_CHECKS=@@FOREIGN_KEY_CHECKS, FOREIGN_KEY_CHECKS=0;
 SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 
+
 -- -----------------------------------------------------
--- Table `TerritoryCaptureStatus`
+-- Table `territorycapturestatus`
 -- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `TerritoryCaptureStatus` (
-  `ID` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `ServerID` INT UNSIGNED NOT NULL,
-  `MapID` INT UNSIGNED NOT NULL,
-  `MarkerName` VARCHAR(45) NOT NULL DEFAULT '\"\"',
-  `Occupiers` VARCHAR(45) NULL,
-  `SideHolder` VARCHAR(45) NULL DEFAULT '\"UNKNOWN\"',
-  `TimeHeld` FLOAT NULL DEFAULT 0,
+CREATE TABLE IF NOT EXISTS `territorycapturestatus` (
+  `ID` INT(10) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `ServerID` INT(10) UNSIGNED NOT NULL,
+  `MapID` INT(10) UNSIGNED NOT NULL,
+  `MarkerName` VARCHAR(45) NOT NULL DEFAULT '""',
+  `Occupiers` VARCHAR(2048) NULL DEFAULT NULL,
+  `SideHolder` VARCHAR(45) NULL DEFAULT '"UNKNOWN"',
+  `TimeHeld` FLOAT NULL DEFAULT '0',
   PRIMARY KEY (`ID`),
   INDEX `fk_TerritoryCaptureStatus_ServerMap1_idx` (`MapID` ASC),
   INDEX `fk_TerritoryCaptureStatus_ServerInstance1_idx` (`ServerID` ASC),
-  CONSTRAINT `fk_TerritoryCaptureStatus_ServerMap1`
-    FOREIGN KEY (`MapID`)
-    REFERENCES `ServerMap` (`ID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION,
   CONSTRAINT `fk_TerritoryCaptureStatus_ServerInstance1`
     FOREIGN KEY (`ServerID`)
-    REFERENCES `ServerInstance` (`ID`)
-    ON DELETE NO ACTION
-    ON UPDATE NO ACTION)
-ENGINE = InnoDB;
-
-
--- -----------------------------------------------------
--- Table `TerritoryCaptureLog`
--- -----------------------------------------------------
-CREATE TABLE IF NOT EXISTS `TerritoryCaptureLog` (
-  `ServerID` INT UNSIGNED NOT NULL,
-  `MapID` INT UNSIGNED NOT NULL,
-  `MarkerName` VARCHAR(45) NOT NULL DEFAULT '\"\"',
-  `CaptureTime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `SideHolder` VARCHAR(45) NOT NULL DEFAULT '\"\"',
-  INDEX `fk_TerritoryCaptureLog_ServerInstance1_idx` (`ServerID` ASC),
-  INDEX `fk_TerritoryCaptureLog_ServerMap1_idx` (`MapID` ASC),
-  CONSTRAINT `fk_TerritoryCaptureLog_ServerInstance1`
-    FOREIGN KEY (`ServerID`)
-    REFERENCES `ServerInstance` (`ID`)
+    REFERENCES `serverinstance` (`ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION,
-  CONSTRAINT `fk_TerritoryCaptureLog_ServerMap1`
+  CONSTRAINT `fk_TerritoryCaptureStatus_ServerMap1`
     FOREIGN KEY (`MapID`)
-    REFERENCES `ServerMap` (`ID`)
+    REFERENCES `servermap` (`ID`)
     ON DELETE NO ACTION
     ON UPDATE NO ACTION)
-ENGINE = InnoDB;
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = latin1;
+
+
+-- -----------------------------------------------------
+-- Table `territorycapturelog`
+-- -----------------------------------------------------
+CREATE TABLE IF NOT EXISTS `territorycapturelog` (
+  `ID` INT(10) UNSIGNED NOT NULL,
+  `MarkerName` VARCHAR(45) NOT NULL DEFAULT '""',
+  `CaptureTime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `SideHolder` VARCHAR(45) NOT NULL DEFAULT '""',
+  `Occupiers` VARCHAR(2048) NULL DEFAULT NULL,
+  INDEX `fk_territorycapturelog_territorycapturestatus1_idx` (`ID` ASC),
+  INDEX `ID_captureTime_idx` (`ID` ASC, `CaptureTime` ASC),
+  CONSTRAINT `fk_territorycapturelog_territorycapturestatus1`
+    FOREIGN KEY (`ID`)
+    REFERENCES `territorycapturestatus` (`ID`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB
+DEFAULT CHARACTER SET = latin1;
+
+
+SET SQL_MODE=@OLD_SQL_MODE;
+SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
+SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
+
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;

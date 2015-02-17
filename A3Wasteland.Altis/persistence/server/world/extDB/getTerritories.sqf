@@ -13,8 +13,7 @@
 // 		5 = Time in seconds during which the area has been held
 // 		6 = Time in seconds during which the area has been occupied by enemies
 
-private ["_sideStr", "_vars", "_columns", "_result", "_result2", "_territories", "_terData", "_currentTerritoryOwner", "_updateValues", "_markerName", "_markerID"];
-
+private ["_strToSide", "_sideStr", "_vars", "_columns", "_result", "_territories", "_terData", "_currentTerritoryOwner", "_currentTerritoryOccupiers", "_currentTerritoryOwnerString", "_currentTerritoryChrono", "_markerName", "_result2", "_markerID", "_props", "_updateValues"];
 
 _strToSide =
 {

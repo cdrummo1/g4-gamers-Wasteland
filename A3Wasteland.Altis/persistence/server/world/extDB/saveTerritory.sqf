@@ -5,8 +5,7 @@
 //	@file Author: Munch after saveVehicle by AgentRev
 //  Argument:   [_currentTerritoryID, _currentTerritoryName, _newTerritoryOccupiersPlayers, _currentTerritoryOwner, _currentTerritoryChrono, _newCapPointTimer]
 
-private ["_terRec", "_sideToStr", "_currentTerritoryOccupiersPlayers", "_currentTerritoryOccupiersUIDs", "_currentTerritoryID", "_currentTerritoryOwner", "_currentTerritoryChrono", "_updateValues", "_markerID"];
-
+private ["_terRec", "_sideToStr", "_currentTerritoryOccupiersPlayers", "_currentTerritoryOccupiersUIDs", "_currentTerritoryID", "_currentTerritoryMarkerName", "_currentTerritoryOwnerString", "_currentTerritoryChrono", "_props", "_updateValues"];
 _terRec = _this;
 
 diag_log format ["saveTerritory got '%1' as arg", _terRec];
