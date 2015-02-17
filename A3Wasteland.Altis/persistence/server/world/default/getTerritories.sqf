@@ -12,7 +12,7 @@
 // 		5 = Time in seconds during which the area has been held
 // 		6 = Time in seconds during which the area has been occupied by enemies
 
-private ["_terFileName", "_exists", "_terCount", "_nTerritories", "_vars", "_sideToStr", "_strToSide", "_territories", "_terData", "_terName", "_i", "_params", "_value", "_currentTerritoryOwner"];
+private ["_terFileName", "_exists", "_terCount", "_nTerritories", "_vars", "_strToSide", "_territories", "_terData", "_terName", "_i", "_params", "_value", "_currentTerritoryOwner"];
 
 _terFileName = "Territories" call PDB_objectFileName;
 

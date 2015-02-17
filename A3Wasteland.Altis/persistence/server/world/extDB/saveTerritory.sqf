@@ -13,7 +13,7 @@ diag_log format ["saveTerritory got '%1' as arg", _terRec];
 
 _sideToStr =
 {
-	switch (toUpper _this) do
+	switch (_this) do
 	{
 		case BLUFOR :		{"WEST"};
 		case OPFOR :		{ "EAST" };
