@@ -32,6 +32,8 @@ _ownerCheck = [_this, 1, false, [false]] call BIS_fnc_param;
 _team = [_this, 2, sideUnknown, [sideUnknown,grpNull]] call BIS_fnc_param;
 _isOwner = [_this, 3, false, [false]] call BIS_fnc_param;
 
+diag_log format ["[INFO] updateTerritoryMarkers called with _territories=%1  _ownerCheck=%2  _team=%3 _isOwner=%4", _territories,_ownerCheck,_team,_isOwner];
+
 _getTeamMarkerColor = if (isNil "getTeamMarkerColor") then
 {
 	compile preprocessFileLineNumbers "territory\client\getTeamMarkerColor.sqf";
@@ -55,9 +57,16 @@ if (isNull player) then
 		_marker = _x select 0;
 		_team = _x select 1;
 		_playerTeam = if (typeName _team == "GROUP") then { group player } else { playerSide };
+<<<<<<< HEAD
 		
 		format ["updateTerritoryMarkers: _ownerCheck is true with _marker='%1' _team='%2' (typeName=%3), _playerTeam='%4' (typeName=%5)",_marker, _team, typeName _team, _playerTeam, typeName _playerTeam] call BIS_fnc_log;
 		_hintText = _hintText + "_marker:"+_marker+" _team="+_team+"(type="+typeName _team+") _playerTeam="+_playerTeam+"(type="+typeName _playerTeam+")\n"
+=======
+
+		diag_log format ["[INFO] updateTerritoryMarkers w/OwnerCheck handling territory=%1  marker=%2  _team=%3 _playerTeam=%4", _x,_marker,_team,_playerTeam];
+
+		
+>>>>>>> origin/master
 		if (_team == _playerTeam) then
 		{
 			_marker setMarkerColorLocal ([_team, true] call _getTeamMarkerColor);
@@ -78,7 +87,12 @@ if (isNull player) then
 		
 		_marker = _x;
 
+<<<<<<< HEAD
 		format ["updateTerritoryMarkers: _ownerCheck is false with _marker='%1' _isOwner=%2",_marker, _isOwner] call BIS_fnc_log;
+=======
+		diag_log format ["[INFO] updateTerritoryMarkers w/o OwnerCheck got '%1', handling marker=%2 _isOwner=%3", _x,_marker,_isOwner];
+
+>>>>>>> origin/master
 		
 		if (_isOwner) then
 		{
