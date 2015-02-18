@@ -80,7 +80,9 @@ diag_log "monitorTerritories initialization start";
 // Set up for persistence data, if available, and set initial territory cap states
 _territoriesInitialState=[];
 _territorySavingOn = ["A3W_territorySaving"] call isConfigOn;
-_territoryLoggingOn = ["A3W_territoryLogging"] call isConfigOn && {A3W_savingMethod isEqualTo "extDB"};
+_territoryLoggingOn = ["A3W_territoryLogging"] call isConfigOn && {["A3W_savingMethod", "profile"] call getPublicVar == "extDB"};
+
+diag_log format ["[INFO] monitorTerritories startup with A3W_territoryLogging = %1, A3W_savingMethod = %2 -> _territoryLoggingOn = %3", ["A3W_territoryLogging"] call isConfigOn, ["A3W_savingMethod", "profile"] call getPublicVar, _territoryLoggingOn];
 
 if (_territorySavingOn) then
 {
@@ -578,8 +580,11 @@ _handleCapPointTick = {
 						// call fn_saveTerritory to persist the newly changed territory state, if persistence is on
 						[_currentTerritoryID, _currentTerritoryName, _newTerritoryOccupiersPlayers, _currentTerritoryOwner, _currentTerritoryChrono, _newCapPointTimer] call fn_saveTerritory;
 						
+						
 						// add a territory capture log event if we're using extDB
+						diag_log format ["_territoryLoggingOn = %1", _territoryLoggingOn];
 						if (_territoryLoggingOn) then {
+							
 							[_currentTerritoryID, _currentTerritoryName, _newTerritoryOccupiersPlayers, _currentTerritoryOwner] call fn_logTerritoryCapture;
 						};
 					};

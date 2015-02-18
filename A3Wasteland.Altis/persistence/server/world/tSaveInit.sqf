@@ -39,7 +39,7 @@ if (_savingMethod == "iniDB") then
 		
 	};
 } else {
-	if (_savingMethod == "extDB" && {["A3W_territoryLogging"] call isConfigOn}) {
+	if (_savingMethod == "extDB" && {["A3W_territoryLogging"] call isConfigOn} ) then {
 		fn_logTerritoryCapture = [_methodDir, "logTerritoryCapture.sqf"] call mf_compile;
 	};
 };

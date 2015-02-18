@@ -10,6 +10,10 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 -- -----------------------------------------------------
 -- Schema a3wasteland
 -- -----------------------------------------------------
+CREATE SCHEMA IF NOT EXISTS `a3wasteland` DEFAULT CHARACTER SET latin1 ;
+USE `a3wasteland` ;
+
+ALTER SCHEMA DEFAULT CHARACTER SET latin1 ;
 
 -- -----------------------------------------------------
 -- Table `serverinstance`
