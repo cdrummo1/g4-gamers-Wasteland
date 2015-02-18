@@ -47,13 +47,13 @@ _currentTerritoryOwnerString = _terRec select 3 call _sideToStr;
 
 _props =
 [
-	["MarkerID", _currentTerritoryID],
+	["Id", _currentTerritoryID],
 	["MarkerName", _currentTerritoryMarkerName],
 	["Occupiers", _currentTerritoryOccupiersUIDs],  		// array of UID strings
-	["SideHolder", _currentTerritoryOwnerString],  	// EAST, WEST, GUER, "UNKNOWN"
+	["SideHolder", _currentTerritoryOwnerString]  		// EAST, WEST, GUER, UNKNOWN
 ];
 _insertValues = [_props, 0] call extDB_pairsToSQL;
-[format ["addTerritoryCaptureLog:%1",  _insertValues] call extDB_Database_async;
+[format ["addTerritoryCaptureLog:%1",  _insertValues]] call extDB_Database_async;
 
 diag_log format ["[INFO] logTerritoryCapture: ran addTerritoryCaptureLog with insertValues=%1", _insertValues];
 

@@ -25,7 +25,7 @@ if (_territorySavingOn) then
 		if !(_territoryOwner isEqualTo sideUnknown) then
 		{
 			_territoryCapped = true;
-			diag_log format ["Territory %1 is owned by %2 ... set territoryCapped to true", _territoryName, _territoryOwner];
+			diag_log format ["Territory %1 is owned by %2 ... set territoryCapped to true", _x select 1, _territoryOwner];
 		};
 	} forEach currentTerritoryDetails;
 	//		0 = Marker ID
