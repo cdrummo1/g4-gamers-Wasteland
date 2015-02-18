@@ -30,7 +30,14 @@ _markers = [];
 		_markers pushBack [_markerName, _markerTeam];
 	};
 } forEach currentTerritoryDetails;
-
+	//		0 = Marker ID
+	// 		1 = Name of capture marker
+	// 		2 = List of players in that area [uids]
+	// 		3 = List of players in that area [player objects] (set to null array)
+	// 		4 = side owning the point currently
+	// 		5 = Time in seconds during which the area has been held
+	//		6 = Time in seconds during which the area has been contested (set to 0)
+	
 diag_log format ["updateConnectingClients [Player: %1] [JIP: %2]", _player, _JIP];
 
 [[[_markers, true], "territory\client\updateTerritoryMarkers.sqf"], "BIS_fnc_execVM", _player, false] call BIS_fnc_MP;
