@@ -31,6 +31,8 @@ diag_log format["tLoad invoked with A3W_savingMethodDir = '%1'",call A3W_savingM
 	// 		4 = Team owning the point currently
 	// 		5 = Time in seconds during which the area has been held
 	// 		6 = Time in seconds during which the area has been occupied by enemies
+	//		7 = GroupHolder (GROUP) group owning the point currently (used when SideHolder=Independent)
+	//		8 = GroupHolderUIDs []: UIDs of members in the GroupHolder group (used when SideHolder=Independent)
 _territories = call compile preprocessFileLineNumbers format ["%1\getTerritories.sqf", _methodDir];
 
 diag_log format["tLoad call to getTerritories returned %1 recs in _territories", count _territories];

@@ -12,8 +12,11 @@
 // 		4 = Team owning the point currently
 // 		5 = Time in seconds during which the area has been held
 // 		6 = Time in seconds during which the area has been occupied by enemies
+//		7 = GroupHolder (GROUP) group owning the point currently (used when SideHolder=Independent)
+//		8 = GroupHolderUIDs []: UIDs of members in the GroupHolder group (used when SideHolder=Independent)
 
-private ["_strToSide", "_sideStr", "_vars", "_columns", "_result", "_territories", "_terData", "_currentTerritoryOwner", "_currentTerritoryOccupiers", "_currentTerritoryOwnerString", "_currentTerritoryChrono", "_markerName", "_result2", "_markerID", "_props", "_updateValues"];
+
+private ["_strToSide", "_sideStr", "_vars", "_columns", "_result", "_territories", "_terData", "_currentTerritoryOwner", "_currentTerritoryOccupiers", "_currentTerritoryOwnerString", "_currentTerritoryGroupString", "_currentTerritoryGroupUIDs", "_currentTerritoryChrono", "_markerName", "_result2", "_markerID", "_props", "_updateValues"];
 
 _strToSide =
 {
@@ -31,14 +34,16 @@ _strToSide =
 };
 
 
-// DB column name, tLoad variable name
+// DB column name, getTerritories variable name
 _vars =
 [
-	["ID", "_currentTerritoryID"],
-	["MarkerName", "_currentTerritoryName"],
-	["Occupiers", "_currentTerritoryOccupiers"],  		// array of UID strings
-	["SideHolder", "_currentTerritoryOwnerString"],  	// EAST, WEST, GUER, "UNKNOWN"
-	["TimeHeld", "_currentTerritoryChrono"]
+	["ID", "_currentTerritoryID"],					// 0
+	["MarkerName", "_currentTerritoryName"],			// 1
+	["Occupiers", "_currentTerritoryOccupiers"],  	// 2: array of UID strings
+	["SideHolder", "_currentTerritoryOwnerString"],  	// 3: "EAST", "WEST", "GUER", "UNKNOWN""
+	["GroupHolder", "_currentTerritoryGroupString"],  // 4:
+	["GroupHolderUIDs","_currentTerritoryGroupUIDs"], // 5:
+	["TimeHeld", "_currentTerritoryChrono"]			// 6:
 ];
 
 _columns = "";
@@ -67,6 +72,7 @@ _territories = [];
 			_terData pushBack [(_vars select _forEachIndex) select 1, _x];
 		};
 	} forEach _x;
+	
 	_currentTerritoryOwner = (_terData select 3 select 1) call _strToSide; 
 
 	
@@ -78,8 +84,11 @@ _territories = [];
 	// 		4 = side owning the point currently
 	// 		5 = Time in seconds during which the area has been held
 	//		6 = Time in seconds during which the area has been contested (set to 0)
-	_territories pushBack [_terData select 0 select 1, _terData select 1 select 1, _terData select 2 select 1, [], _currentTerritoryOwner, _terData select 4 select 1, 0];
-	//					  Marker ID					MarkerName				Occupiers			    Occupiers, SideHolder,       timeHeld, timeOccupied
+	//		7 = GroupHolder (GROUP) group owning the point currently (used when SideHolder=Independent)
+	//		8 = GroupHolderUIDs []: UIDs of members in the GroupHolder group (used when SideHolder=Independent)
+	
+	_territories pushBack [_terData select 0 select 1, _terData select 1 select 1, _terData select 2 select 1, [], _currentTerritoryOwner, _terData select 6 select 1, 0, _terData select 4 select 1, _terData select 5 select 1];
+	//					  Marker ID					MarkerName				Occupiers			    Occupiers, SideHolder,       timeHeld,         timeOccupied, GroupHolder, GroupHolderUIDs
 	
 	
 } forEach _result;
@@ -87,9 +96,10 @@ _territories = [];
 // Check that a complete set of territories were loaded, & if not, create db & territories recs for any missing ones
 if (count _territories < count (["config_territory_markers", []] call getPublicVar)) then {
 	
-
 	_currentTerritoryOccupiers=[];
 	_currentTerritoryOwnerString="UNKNOWN";
+	_currentTerritoryGroupString="";
+	_currentTerritoryGroupUIDs=[];
 	_currentTerritoryChrono=0;
 	
 	diag_log "[INFO] A3Wasteland - mismatch in saved territory info ... initializing/updating with data from config_territory_markers";
@@ -118,6 +128,8 @@ if (count _territories < count (["config_territory_markers", []] call getPublicV
 				["MarkerName", _x select 0],
 				["Occupiers", _currentTerritoryOccupiers],  		// array of UID strings
 				["SideHolder", _currentTerritoryOwnerString],  	// EAST, WEST, GUER, "UNKNOWN"
+				["GroupHolder", _currentTerritoryGroupString],
+				["GroupHolderUIDs", _currentTerritoryGroupUIDs],	// array of UID strings
 				["TimeHeld", _currentTerritoryChrono]
 			];
 			_updateValues = [_props, 0] call extDB_pairsToSQL;
@@ -125,8 +137,8 @@ if (count _territories < count (["config_territory_markers", []] call getPublicV
 
 			diag_log format ["[INFO] getTerritories:   assigned ID=%1 to Marker %2", _markerID, _markerName];
 			
-			_territories pushBack [_markerID,_markerName,_currentTerritoryOccupiers,[], sideUnknown,0,0];
-			//					  Marker ID,MarkerName,Occupiers,Occupiers,SideHolder,timeHeld
+			_territories pushBack [_markerID,_markerName,_currentTerritoryOccupiers,[], sideUnknown,0,0,objNull,[]];
+			//					  Marker ID,MarkerName,Occupiers,Occupiers,SideHolder,timeHeld,timeContested,GroupHolder,GroupHolderUIDs
 		} else {
 			diag_log ["[INFO] getTerritories: Marker '%1' exists in db", _markerName];
 		};

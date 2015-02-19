@@ -12,6 +12,9 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 -- -----------------------------------------------------
 USE `a3wasteland` ;
 
+DROP TABLE `territorycapturestatus`;
+DROP TABLE `territorycapturelog`;
+
 -- -----------------------------------------------------
 -- Table `territorycapturestatus`
 -- -----------------------------------------------------
@@ -22,6 +25,8 @@ CREATE TABLE IF NOT EXISTS `territorycapturestatus` (
   `MarkerName` VARCHAR(45) NOT NULL DEFAULT '""',
   `Occupiers` VARCHAR(2048) NULL DEFAULT NULL,
   `SideHolder` VARCHAR(45) NULL DEFAULT '"UNKNOWN"',
+  `GroupHolder` VARCHAR(128) NULL DEFAULT NULL,
+  `GroupHolderUIDs` VARCHAR(2048) NULL DEFAULT NULL,
   `TimeHeld` FLOAT NULL DEFAULT '0',
   PRIMARY KEY (`ID`),
   INDEX `fk_TerritoryCaptureStatus_ServerMap1_idx` (`MapID` ASC),
@@ -46,9 +51,10 @@ DEFAULT CHARACTER SET = latin1;
 CREATE TABLE IF NOT EXISTS `territorycapturelog` (
   `ID` INT(10) UNSIGNED NOT NULL,
   `MarkerName` VARCHAR(45) NOT NULL DEFAULT '""',
+  `Occupiers` VARCHAR(2048) NULL,
   `CaptureTime` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
   `SideHolder` VARCHAR(45) NOT NULL DEFAULT '""',
-  `Occupiers` VARCHAR(2048) NULL DEFAULT NULL,
+  `GroupHolder` VARCHAR(128) NULL DEFAULT NULL,
   INDEX `fk_territorycapturelog_territorycapturestatus1_idx` (`ID` ASC),
   INDEX `ID_captureTime_idx` (`ID` ASC, `CaptureTime` ASC),
   CONSTRAINT `fk_territorycapturelog_territorycapturestatus1`

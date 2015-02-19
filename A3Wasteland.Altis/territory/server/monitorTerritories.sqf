@@ -65,12 +65,14 @@ if(!isServer) exitWith {};
 
 currentTerritoryDetails = [];
 	//		0 = Marker ID
-	// 		1 = Name of capture marker
+	// 		1 = MarkerName: Name of capture marker
 	// 		2 = List of players in that area [uids]
 	// 		3 = List of players in that area [player objects] (set to null array)
-	// 		4 = side owning the point currently
-	// 		5 = Time in seconds during which the area has been held
+	// 		4 = SideHolder: (SIDE) side owning the point currently
+	// 		5 = TimeHeld: (INTEGER) Time in seconds during which the area has been held
 	//		6 = Time in seconds during which the area has been contested (set to 0)
+	//		7 = GroupHolder (GROUP) group owning the point currently (used when SideHolder=Independent)
+	//		8 = GroupHolderUIDs []: UIDs of members in the GroupHolder group (used when SideHolder=Independent)
 
 // set A3W_currentTerritoryOwners to empty
 A3W_currentTerritoryOwners = [];
@@ -448,9 +450,8 @@ _handleCapPointTick = {
 	// ]
 	//
 
-	// Known to be the same as _currentTerritoryData
+	// Loop over _currentTerritoryData
 	_count = count _currentTerritoryData;
-
 	for "_i" from 0 to (_count - 1) do
 	{
 		_loopStart = diag_tickTime;
@@ -464,7 +465,8 @@ _handleCapPointTick = {
 		_currentTerritoryOwner = _currentTerritoryDetails select 4;			// SIDE 
 		_currentTerritoryChrono = _currentTerritoryDetails select 5;			// INTEGER timeHeld
 		_currentTerritoryTimer = _currentTerritoryDetails select 6;			// INTEGER timeOccupied by enemy
-
+		_currentTerritoryOwnerGroup = _currentTerritoryDetails select 7;		// GROUP
+		_currentTerritoryOwnerGroupUIDs = _currentTerritoryDetails select 8;	// [uid,uid,uid,...]
 
 		// Use BIS_fnc_conditionalSelect since we can't sort arrays using strings FFS.
 		// This is slower than my plan to have both _newTerritoryData and _currentTerritoryData sorted in the same way to allow
@@ -487,8 +489,9 @@ _handleCapPointTick = {
 		// Do we have ANY people in this territory, i.e., does a _newTerritoryDetails rec exist?
 		if (count _newTerritoryData > 0 && {count _newTerritoryDetails > 0}) then
 		{
-		
-			// diag_log format["Processing point %1 with currentTerritoryData record='%2'", _currentTerritoryName, _currentTerritoryDetails];
+			// Yes: there are player(s) in the territory
+			
+			diag_log format["Processing point %1 with currentTerritoryData record='%2'", _currentTerritoryName, _currentTerritoryDetails];
 
 			_newTerritoryDetails = _newTerritoryDetails select 0;  // extract the single element array rec to a var of the same name
 			// _newTerritoryDetails : [territoryName, [player, player, ...]]
@@ -503,6 +506,8 @@ _handleCapPointTick = {
 			// There are players in the territory.  Is it contested or not?
 			// diag_log format ["_handleCapPointTick for %1 calling _teamCountsForPlayerArray with _currentTerritoryOccupiersPlayers=%2]", _currentTerritoryName, _currentTerritoryOccupiersPlayers];
 			_currentTeamCounts = [_currentTerritoryOccupiersPlayers] call _teamCountsForPlayerArray;  
+			
+		
 			// diag_log format ["     call returned _currentTeamCounts=%1", _currentTeamCounts];
 			// diag_log format ["_handleCapPointTick calling _teamCountsForPlayerArray with _newTerritoryOccupiersPlayers=%1", _newTerritoryOccupiersPlayers];
 			_newTeamCounts = [_newTerritoryOccupiersPlayers] call _teamCountsForPlayerArray;
@@ -582,6 +587,9 @@ _handleCapPointTick = {
 						// call fn_saveTerritory to persist the newly changed territory state, if persistence is on
 						[_currentTerritoryID, _currentTerritoryName, _newTerritoryOccupiersPlayers, _currentTerritoryOwner, _currentTerritoryChrono, _newCapPointTimer] call fn_saveTerritory;
 						
+						// Call above needs to go to: 
+						// [_currentTerritoryID, _currentTerritoryName, _newTerritoryOccupiersPlayers, _currentTerritoryOwner, _currentTerritoryChrono, _newTerritoryGroupHolder, _newTerritoryGrouplHolderUIDs]
+						
 						
 						// add a territory capture log event if we're using extDB
 						diag_log format ["_territoryLoggingOn = %1", _territoryLoggingOn];
@@ -590,8 +598,6 @@ _handleCapPointTick = {
 							[_currentTerritoryID, _currentTerritoryName, _newTerritoryOccupiersPlayers, _currentTerritoryOwner] call fn_logTerritoryCapture;
 						};
 					};
-					
-					
 					
 					// Increase capture score
 					{
@@ -604,11 +610,6 @@ _handleCapPointTick = {
 				
 				[_currentTerritoryOwner, _newTerritoryOccupiersPlayers, _newDominantTeam, _action] call _updatePlayerTerritoryActivity;
 			};
-			/*else
-			{
-				// Either there's nobody there, or its filled with the current dominant team
-				_currentTerritoryData set [_i, [_currentTerritoryName, [], _currentTerritoryOwner, _currentTerritoryChrono, 0]];
-			};*/
 
 			// get UIDs of _newTerritoryOccupiersPlayers for saving into 
 			_newTerritoryOcupiersUIDs=[];
@@ -721,7 +722,7 @@ while {true} do
 	currentTerritoryDetails = _newCapturePointDetails;
 
 	_newTerritoryOwners = [];
-	{ _newTerritoryOwners pushBack [_x select 0, _x select 3] } forEach _newCapturePointDetails;
+	{ _newTerritoryOwners pushBack [_x select 1, _x select 4 } forEach _newCapturePointDetails;
 
 	if !(A3W_currentTerritoryOwners isEqualTo _newTerritoryOwners) then
 	{

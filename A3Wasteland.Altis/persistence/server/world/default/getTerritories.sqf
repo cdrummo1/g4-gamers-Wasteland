@@ -11,6 +11,8 @@
 // 		4 = Team owning the point currently
 // 		5 = Time in seconds during which the area has been held
 // 		6 = Time in seconds during which the area has been occupied by enemies
+//		7 = GroupHolder (GROUP) group owning the point currently (used when SideHolder=Independent)
+//		8 = GroupHolderUIDs []: UIDs of members in the GroupHolder group (used when SideHolder=Independent)
 
 private ["_terFileName", "_exists", "_terCount", "_nTerritories", "_vars", "_strToSide", "_territories", "_terData", "_terName", "_i", "_params", "_value", "_currentTerritoryOwner"];
 
@@ -35,7 +37,6 @@ if (isNil "_terCount" || {_terCount != _nTerritories }) then {
 		_markerName = _x select 0;
 		_terName = format ["Ter%1", _markerName];
 		// create territory rec w/ 'single array' (?) query return
-		_markerID = ([format ["newTerritoryCaptureStatus:%1:%2:%3", call A3W_extDB_ServerID, call A3W_extDB_MapID, _markerName], 2, false] call extDB_Database_async) select 0;
 
 		_props = [];
 		_props pushBack ["MarkerName", _markerName];
@@ -43,6 +44,9 @@ if (isNil "_terCount" || {_terCount != _nTerritories }) then {
 		_props pushBack ["SideHolder", _currentTerritoryOwner];
 		_props pushBack ["TimeHeld", _currentTerritoryChrono];
 		_props pushBack ["TimeOccupied", _currentTerritoryTimer];
+		_props pushBack ["GroupHolder", _currentTerritoryGroupString];
+		_props pushBack ["GroupHolderUIDs",_currentTerritoryGroupUIDs];
+
 
 		{
 			[_terFileName, _terName, _x select 0, _x select 1, false] call PDB_write; // iniDB_write
@@ -68,6 +72,8 @@ if (isNil "_terCount" || {_terCount != _nTerritories }) then {
 		[["Occupiers", "ARRAY"], "_currentTerritoryOccupiers"],  		// array of UID strings
 		[["SideHolder", "STRING"], "_currentTerritoryOwnerString"],  	// EAST, WEST, GUER, NONE
 		[["TimeHeld", "INTEGER"], "_currentTerritoryChrono"],
+		[["GroupHolder", "STRING"], "_currentTerritoryGroupString"],  // 4:
+		[["GroupHolderUIDs","ARRAY"],"_currentTerritoryGroupUIDs"], // 5:
 		[["TimeOccupied", "INTEGER"], "_currentTerritoryTimer"]
 	];
 
@@ -122,17 +128,11 @@ if (isNil "_terCount" || {_terCount != _nTerritories }) then {
 		//diag_log format ["Set _currentTerritoryOwner to %1", _currentTerritoryOwner];
 		
 		//diag_log format ["getTerritories loaded [%1, %2, %3, %4, %5]",_terData select 0 select 1, _terData select 1 select 1, _currentTerritoryOwner, _terData select 3 select 1, _terData select 4 select 1];
-		//		0 = Marker ID
-		// 		1 = Name of capture marker
-		// 		2 = List of players in that area [uids]
-		// 		3 = List of players in that area [player objects] (set to null array)
-		// 		4 = Team owning the point currently
-		// 		5 = Time in seconds during which the area has been held
-		//		6 = Time in seconds during which the area has been contested (set to 0)	
-		_territories pushBack [_terData select 0 select 1, _terData select 1 select 1, _terData select 2 select 1, [], _currentTerritoryOwner, parseNumber (_terData select 4 select 1),0];	
-		//					  Marker ID					MarkerName				Occupiers			    Occupiers, SideHolder,       timeHeld
 
-	};
+		_territories pushBack [_terData select 0 select 1, _terData select 1 select 1, _terData select 2 select 1, [], _currentTerritoryOwner, _terData select 6 select 1, 0, _terData select 4 select 1, _terData select 5 select 1];
+		//					  Marker ID					MarkerName				Occupiers			    Occupiers, SideHolder,       timeHeld,         timeOccupied, GroupHolder, GroupHolderUIDs
+
+		};
 };
 
 diag_log format ["[]INFO] getTerritories return _territories data with %1 records", count _territories];
