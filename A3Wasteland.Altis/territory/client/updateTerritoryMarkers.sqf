@@ -56,43 +56,35 @@ if (isNull player) then
 	
 		_marker = _x select 0;
 		_team = _x select 1;
-		_playerTeam = if (typeName _team == "GROUP") then { group player } else { playerSide };
-<<<<<<< HEAD
+		//_playerTeam = if (typeName _team == "GROUP") then { group player } else { playerSide };
+		_playerTeam = playerSide;
 		
+		diag_log format ["updateTerritoryMarkers: _ownerCheck is true with _marker='%1' _team='%2' (typeName=%3), _playerTeam='%4' (typeName=%5)",_marker, _team, typeName _team, _playerTeam, typeName _playerTeam];
 		format ["updateTerritoryMarkers: _ownerCheck is true with _marker='%1' _team='%2' (typeName=%3), _playerTeam='%4' (typeName=%5)",_marker, _team, typeName _team, _playerTeam, typeName _playerTeam] call BIS_fnc_log;
-		_hintText = _hintText + "_marker:"+_marker+" _team="+_team+"(type="+typeName _team+") _playerTeam="+_playerTeam+"(type="+typeName _playerTeam+")\n"
-=======
+		_hintText = _hintText + "_marker:"+_marker+" _team="+format["%1",_team]+"(type="+(typeName _team)+") _playerTeam="+format["%1",_playerTeam]+"(type="+(typeName _playerTeam)+")\n";
 
-		diag_log format ["[INFO] updateTerritoryMarkers w/OwnerCheck handling territory=%1  marker=%2  _team=%3 _playerTeam=%4", _x,_marker,_team,_playerTeam];
-
-		
->>>>>>> origin/master
 		if (_team == _playerTeam) then
 		{
 			_marker setMarkerColorLocal ([_team, true] call _getTeamMarkerColor);
 			_marker setMarkerBrushLocal MARKER_BRUSH_OWNER;
 			format ["updateTerritoryMarkers: setting marker=%1 with MARKER_BRUSH_OWNER",_marker] call BIS_fnc_log;
+			diag_log format ["updateTerritoryMarkers: setting marker=%1 with MARKER_BRUSH_OWNER",_marker];
 		}
 		else
 		{
 			_marker setMarkerColorLocal ([_team, false] call _getTeamMarkerColor);
 			_marker setMarkerBrushLocal MARKER_BRUSH_OTHER;
 			format ["updateTerritoryMarkers: setting marker=%1 with MARKER_BRUSH_OTHER",_marker] call BIS_fnc_log;
+			diag_log format ["updateTerritoryMarkers: setting marker=%1 with MARKER_BRUSH_OTHER",_marker];
 		};
 	}
 	else
 	{
 	
 		// invoked when _ownerCheck is false, i.e., on pvar_updateTerritoryMarkers broadcasts after a territory capture event
-		
 		_marker = _x;
 
-<<<<<<< HEAD
 		format ["updateTerritoryMarkers: _ownerCheck is false with _marker='%1' _isOwner=%2",_marker, _isOwner] call BIS_fnc_log;
-=======
-		diag_log format ["[INFO] updateTerritoryMarkers w/o OwnerCheck got '%1', handling marker=%2 _isOwner=%3", _x,_marker,_isOwner];
-
->>>>>>> origin/master
 		
 		if (_isOwner) then
 		{
@@ -110,3 +102,5 @@ if (isNull player) then
 } forEach _territories;
 
 hint _hintText;
+diag_log _hintText;
+_hintText call BIS_fnc_log;

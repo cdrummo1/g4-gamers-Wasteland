@@ -109,6 +109,8 @@ if (_territorySavingOn) then
 			_currentTerritoryName setMarkerColor _newMarkerColor;
 		};
 		
+		diag_log format ["currentTerritories: marker: %1  owner: %2 typeName(owner): %3", _currentTerritoryName,_currentTerritoryOwner, typeName _currentTerritoryOwner];
+		
 		_newTerritoryOwners pushBack [_currentTerritoryName,_currentTerritoryOwner];
 	} foreach currentTerritoryDetails;
 	
