@@ -5,6 +5,7 @@
 //	@file Name: acceptGroupInvite.sqf
 //	@file Author: [404] Deadbeat, AgentRev
 //	@file Created: 20/11/2012 05:19
+//  @file Modified: Munch 2015-02-20 to handle server-side group ownerships of territories
 
 private ["_playerUID", "_senderUID", "_sender", "_newGroup"];
 
@@ -58,7 +59,9 @@ if (!isNil "_sender" && {side _newGroup == playerSide}) then
 	pvar_convertTerritoryOwner = [_newTerritories, _newGroup];
 	publicVariableServer "pvar_convertTerritoryOwner";
 
-	[_newTerritories, false, _newGroup, true] call updateTerritoryMarkers;
+	if (!(side _newGroup in [OPFOR,BLUFOR])) {
+		[_newTerritories, false, side _newGroup, true] call updateTerritoryMarkers;
+	};
 
 	player globalChat "You have accepted the invite.";
 	player setVariable ["currentGroupRestore", _newGroup, true];

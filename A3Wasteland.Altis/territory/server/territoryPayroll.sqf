@@ -54,7 +54,7 @@ while {true} do
 	
 	// attempt to be thread-safe with respect to monitorTerritories use of currentTerritoryDetails data
 	if (monitorTerritoriesActive) then {
-		diag_log "territoryPayroll wait on monitorTerritories goes inactive";
+		diag_log "territoryPayroll wait on monitorTerritories to go inactive";
 		waitUntil !(monitorTerritoriesActive);
 		diag_log "territoryPayroll resume";
 	};
