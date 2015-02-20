@@ -8,6 +8,7 @@
 # @@Modify Date: 2013-09-15 22:35:19
 # @@Function: Creates server-side capture zone triggers
 #*********************************************************/
+private ["_marker", "_trig"];
 
 if (!isServer) exitWith {};
 

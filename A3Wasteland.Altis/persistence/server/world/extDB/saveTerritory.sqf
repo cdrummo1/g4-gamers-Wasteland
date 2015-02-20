@@ -23,24 +23,14 @@ _sideToStr =
 	};
 };
 
-// convert player objects to UIDs
-_currentTerritoryOccupiersPlayers = _terRec select 2;
-_currentTerritoryOccupiersUIDs = [];
-if (count _currentTerritoryOccupiersPlayers >0) then 
-{
-	{
-		_currentTerritoryOccupiersUIDs pushBack getPlayerUID _x;
-	} forEach _currentTerritoryOccupiersPlayers;
-};
-
-//					  Marker ID,MarkerName,Occupiers,Occupiers,SideHolder,timeHeld
+//	Marker ID,MarkerName,Occupiers,Occupiers,SideHolder,timeHeld
 _currentTerritoryID = _terRec select 0;
 _currentTerritoryMarkerName=_terRec select 1;
+_currentTerritoryOccupiersUIDs = _terRec select 2;
 _currentTerritoryOwnerString = _terRec select 3 call _sideToStr;
 _currentTerritoryChrono = _terRec select 4;
-_currentTerritoryGroupHolderString = _terRec select 5;
+_currentTerritoryGroupHolderString = format["%1", _terRec select 5];  // group object to STRING
 _currentTerritoryGroupHolderUIDs = _terRec select 6;
-
 
 _props =
 [

@@ -55,28 +55,27 @@ diag_log format ["[INFO] getTerritories: Calling getServerTerritoriesCaptureStat
 
 _result = [format ["getServerTerritoriesCaptureStatus:%1:%2:%3", call A3W_extDB_ServerID, call A3W_extDB_MapID, _columns], 2, true] call extDB_Database_async;
 
-diag_log format ["[INFO] getTerritories: Call to getServerTerritoriesCaptureStatus sql returned %1 recs: %2",(count _result), _result];
+diag_log format ["[INFO] getTerritories: Call to getServerTerritoriesCaptureStatus sql returned %1 recs",(count _result)];
 //diag_log format ["rec 0: has size %1 with %2", count _result select 0, _result select 0];
 _territories = [];
 
 {
-	diag_log format ["[INFO] getTerritories: handling record %1 field record: '%2'", count _x, _x];
+	//diag_log format ["[INFO] getTerritories: handling record %1 field record: '%2'", count _x, _x];
 
-	
 	_terData = [];
 	
 	{
 		if (!isNil "_x") then
 		{
-			diag_log format ["    setting _terData elem [%1,%2]", (_vars select _forEachIndex) select 1, _x];
+			//diag_log format ["    setting _terData elem [%1,%2]", (_vars select _forEachIndex) select 1, _x];
 			_terData pushBack [(_vars select _forEachIndex) select 1, _x];
 		};
 	} forEach _x;
 	
 	_currentTerritoryOwner = (_terData select 3 select 1) call _strToSide; 
-
+	_currentTerritoryOwnerGroup = grpNull; // set groups to null on load
 	
-	diag_log format ["[INFO] getTerritories: loaded [%1, %2, %3, %4, %5]",_terData select 0 select 1, _terData select 1 select 1, _terData select 2 select 1, _currentTerritoryOwner,  _terData select 4 select 1];
+	diag_log format ["[INFO] getTerritories: loaded [%1, %2, %3, %4, %5, %6, %7]",_terData select 0 select 1, _terData select 1 select 1, _terData select 2 select 1, _currentTerritoryOwner,  _terData select 4 select 1,  _terData select 5 select 1,  _terData select 6 select 1];
 	//		0 = Marker ID
 	// 		1 = Name of capture marker
 	// 		2 = List of players in that area [uids]
@@ -87,8 +86,8 @@ _territories = [];
 	//		7 = GroupHolder (GROUP) group owning the point currently (used when SideHolder=Independent)
 	//		8 = GroupHolderUIDs []: UIDs of members in the GroupHolder group (used when SideHolder=Independent)
 	
-	_territories pushBack [_terData select 0 select 1, _terData select 1 select 1, _terData select 2 select 1, [], _currentTerritoryOwner, _terData select 6 select 1, 0, _terData select 4 select 1, _terData select 5 select 1];
-	//					  Marker ID					MarkerName				Occupiers			    Occupiers, SideHolder,       timeHeld,         timeOccupied, GroupHolder, GroupHolderUIDs
+	_territories pushBack [_terData select 0 select 1, _terData select 1 select 1, _terData select 2 select 1, [], _currentTerritoryOwner, _terData select 6 select 1, 0, _currentTerritoryOwnerGroup, _terData select 5 select 1];
+	//					  Marker ID					MarkerName				OccupiersUIDs			    Occupiers, SideHolder,       timeHeld,         timeOccupied, GroupHolder, GroupHolderUIDs
 	
 	
 } forEach _result;
