@@ -58,7 +58,7 @@ _role7names = ["Server change log for server changes/updates!"];
 _role8 = "Did you know we have server loadouts?";
 _role8names = ["Check our website for server loadout details"];
 _role9 = "Goto pimp your shit/Server perks at g4-gamers.com,";
-_role9names = ["Don't forget we also have a Stratis 1 & 2 servers linked to this server!!"];
+_role9names = ["Don't forget we also have a Stratis 1 and 2 servers linked to this server!!"];
 _role10 = "Again,";
 _role10names = ["THANK YOU and HAVE FUN!!!"];
 
