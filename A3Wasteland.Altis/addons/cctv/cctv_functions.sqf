@@ -1,6 +1,12 @@
 #include "constants.h"
 #include "macro.h"
 #include "dikcodes.h"
+#define OBJECT 4
+#define ERR_MUTEX_LOCKED localize "STR_WL_Errors_InProgress"
+#define MUTEX_LOCK_OR_FAIL \
+	if mutexScriptInProgress exitWith {hint ERR_MUTEX_LOCKED;}; \
+	mutexScriptInProgress = true;
+#define MUTEX_UNLOCK mutexScriptInProgress = false; doCancelAction = false
 
 if (not(undefined(cctv_functions_defined))) exitWith {};
 diag_log format["Loading cctv functions ..."];
@@ -117,7 +123,6 @@ cctv_security_laptop_event_handler = {
     };
   };
 };
-
 
 cctv_cameras = OR(cctv_cameras,[]);
 
@@ -275,9 +280,15 @@ cctv_enforce_limits = {
 
 
 cctv_camera_use = {
+  private ["_item", "_type", "_item_type", "_player", "_closesttown", "_town_name", "_town_pos", "_rand", "_camera_name", "_access_control", "_owner_type", "_owner_value", "_camera", "_playerDir", "_cameraDir"];
   //this is needed in order for the mf_inventory_drop call to work (since it's nested inside USE)
   MUTEX_UNLOCK ;
 
+  _id = _this;
+  //player sideChat format ["cctv_camera_use called with '%1'", _id];
+  _item = _id call mf_inventory_get;
+  _type = _item select OBJECT;
+  
   private["_item_type"];
   _item_type = _this;
 
@@ -289,7 +300,6 @@ cctv_camera_use = {
   _closesttown = (nearestLocations [_player,["NameCityCapital","NameCity","NameVillage"],10000]) select 0;
   _town_name = text _closesttown;
   _town_pos = position _closesttown;
-
 
   private["_cctv_id", "_cctv_name", "_rand"];
   _rand = ceil(random 10000);
@@ -312,8 +322,27 @@ cctv_camera_use = {
   _owner_value = _access_control select cctv_menu_result_ac_value;
 
   private["_camera"];
-  _camera = _item_type call mf_inventory_drop;
 
+  // this no workee, and the call to 'use' is supposed to remove it from inventory anyway, so just
+  // createVehicle instead, like when a beacon is created
+   //_camera = _item_type call mf_inventory_drop; 
+ 
+  MUTEX_LOCK_OR_FAIL;
+  player playMove ([player, "AmovMstpDnon_AinvMstpDnon", "putdown"] call getFullMove);
+  sleep 0.5;
+  _camera = createVehicle [_type, [player, [0,1,0]] call relativePos, [], 0, "CAN_COLLIDE"];
+  _playerDir = getDir player;
+  if (_playerDir >180) then
+  {
+	_cameraDir = _playerDir - 180;
+  } else {
+	_cameraDir = _playerDir + 180;
+  };
+  _camera setDir _cameraDir;
+  _camera setVariable ["mf_item_id", _id, true];
+  [_id, 1] call mf_inventory_remove;
+  MUTEX_UNLOCK; 
+  
   if (isNil "_camera" || {typeName _camera != typeName objNull || {isNull _camera}}) exitWith {false};
 
   _camera setVariable ["a3w_cctv_camera", true, true];

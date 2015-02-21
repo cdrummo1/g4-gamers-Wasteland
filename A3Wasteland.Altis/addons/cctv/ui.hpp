@@ -194,7 +194,7 @@ class cctv_ui_RscMenuButton {
 	animTexturePressed = "#(argb,8,8,3)color(0,0,0,1)";
 	animTextureDefault = "#(argb,8,8,3)color(0,0,0,1)";
 	textureNoShortcut = "";
-
+	font = FontHTML;
 	colorBackground[] = {1,1,1,0.8};
 	colorBackground2[] = {1,1,1,0.5};
 	color[] = {1,1,1,1};
@@ -203,7 +203,7 @@ class cctv_ui_RscMenuButton {
 	colorDisabled[] = {1,0,0,0.8};
 
 	colorFocused[] = {1,1,1,1};
-  colorBackgroundFocused[] = {0,0,0,0};
+	colorBackgroundFocused[] = {0,0,0,0};
 
 	period = 1.2;
 	periodFocus = 1.2;

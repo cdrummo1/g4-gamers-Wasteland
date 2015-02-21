@@ -60,7 +60,7 @@ loadScreen = "mapConfig\Loading.jpg";
 #include "addons\cctv\ui.hpp"
 #include "addons\cctv\laptop_flat_menu.hpp"
 #include "addons\cctv\cctv_menu.hpp"
-
+#include "addons\laptop\dialog\downloadData.hpp"
 //NON VANILLA END
 class RscTitles
 {
