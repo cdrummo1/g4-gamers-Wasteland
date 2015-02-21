@@ -130,14 +130,14 @@ vehicleThermalsOn = ["A3W_vehicleThermals"] call isConfigOn;
 
 _purchasedVehicleSavingOn = ["A3W_purchasedVehicleSaving"] call isConfigOn;
 _missionVehicleSavingOn = ["A3W_missionVehicleSaving"] call isConfigOn;
-
+_territorySavingOn = ["A3W_territorySaving"] call isConfigOn;
 _objectSavingOn = (_baseSavingOn || _boxSavingOn || _staticWeaponSavingOn || _cameraSavingOn || _warchestSavingOn || _warchestMoneySavingOn || _beaconSavingOn);
 _vehicleSavingOn = (_purchasedVehicleSavingOn || _purchasedVehicleSavingOn);
 
 _setupPlayerDB = scriptNull;
 
 // Do we need any persistence?
-if (_playerSavingOn || _objectSavingOn || _vehicleSavingOn) then
+if (_playerSavingOn || _objectSavingOn || _vehicleSavingOn || _territorySavingOn) then
 {
 	////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
@@ -207,6 +207,18 @@ if (_playerSavingOn || _objectSavingOn || _vehicleSavingOn) then
 
 	call compile preProcessFileLineNumbers format ["persistence\server\setup\%1\init.sqf", call A3W_savingMethodDir];
 
+	
+	if (count (["config_territory_markers", []] call getPublicVar) > 0) then
+	{
+		diag_log "[INFO] A3W territory capturing is ENABLED";
+		[] execVM "territory\server\monitorTerritories.sqf";
+	}
+	else
+	{
+		diag_log "[INFO] A3W territory capturing is DISABLED";
+	};
+	
+	
 	if (_playerSavingOn) then
 	{
 		_setupPlayerDB = [] spawn compile preprocessFileLineNumbers "persistence\server\players\setupPlayerDB.sqf"; // scriptDone stays stuck on false when using execVM on Linux
@@ -345,15 +357,7 @@ if (["A3W_serverSpawning"] call isConfigOn) then
 A3W_serverSpawningComplete = compileFinal "true";
 publicVariable "A3W_serverSpawningComplete";
 
-if (count (["config_territory_markers", []] call getPublicVar) > 0) then
-{
-	diag_log "[INFO] A3W territory capturing is ENABLED";
-	[] execVM "territory\server\monitorTerritories.sqf";
-}
-else
-{
-	diag_log "[INFO] A3W territory capturing is DISABLED";
-};
+
 
 // Consolidate all store NPCs in a single group
 [] spawn

@@ -28,12 +28,12 @@
 #define MARKER_BRUSH_OWNER "Solid"
 #define MARKER_BRUSH_OTHER "DiagGrid"
 
-private ["_hintText", "_territories", "_ownerCheck", "_isOwner", "_getTeamMarkerColor", "_marker", "_team", "_playerTeam"];
+private ["_hintText", "_territories", "_ownerCheck", "_isOwner", "_getTeamMarkerColor", "_marker", "_team", "_playerTeam", "_countSetOwner"];
 
 format ["updateTerritoryMarkers called with '%1'",_this] call BIS_fnc_log;
-hint "utm called with "+_this;
-_hintText="";
 
+_hintText="";
+_countSetOwner=0;
 _territories = _this select 0;
 _ownerCheck = [_this, 1, false, [false]] call BIS_fnc_param;
 _team = [_this, 2, sideUnknown, [sideUnknown]] call BIS_fnc_param;
@@ -55,10 +55,10 @@ if (isNull player) then
 	waitUntil {!isNull player};
 };
 
-{
+
+{	// loop over the array of territories
 	if (_ownerCheck) then
 	{
-	
 		// Method 2: invoked when _ownerCheck is true, i.e. when execVM'd from the server by updateConnectingClients 
 		// we're looping over the array of '_territories', each containing: [_markerName, _markerTeam, _markerGroup]
 		_marker = _x select 0;
@@ -68,9 +68,9 @@ if (isNull player) then
 		_playerTeam = playerSide;
 		_playerGroup = group player;
 		
-		diag_log format ["updateTerritoryMarkers: _ownerCheck is true with _marker='%1' _team='%2' (typeName=%3), _group'%4' (typeName=%5)_playerTeam='%5' (typeName=%6)",_marker, _team, typeName _team, _group, typeName _group, _playerTeam, typeName _playerTeam];
-		format ["updateTerritoryMarkers: _ownerCheck is true with _marker='%1' _team='%2' (typeName=%3), _group'%4' (typeName=%5)_playerTeam='%5' (typeName=%6)",_marker, _team, typeName _team, _group, typeName _group, _playerTeam, typeName _playerTeam] call BIS_fnc_log;
-		_hintText = _hintText + "_marker:"+_marker+" _team="+format["%1",_team]+"(type="+(typeName _team)+") _group="+format["%1", _group]+"(type="+(typeName _group)+") playerTeam="+format["%1",_playerTeam]+"(type="+(typeName _playerTeam)+")\n";
+		//diag_log format ["updateTerritoryMarkers: _ownerCheck is true with _marker='%1' _team='%2' (typeName=%3), _group'%4' (typeName=%5) _playerTeam='%6' (typeName=%7)",_marker, _team, typeName _team, _group, typeName _group, _playerTeam, typeName _playerTeam];
+		//["updateTerritoryMarkers: _ownerCheck is true with _marker='%1' _team='%2' (typeName=%3), _group'%4' (typeName=%5) _playerTeam='%6' (typeName=%7)",_marker, _team, typeName _team, _group, typeName _group, _playerTeam, typeName _playerTeam] call BIS_fnc_log;
+		//_hintText = _hintText + "_marker:"+_marker+" _team="+format["%1",_team]+"(type="+(typeName _team)+") _group="+format["%1", _group]+"(type="+(typeName _group)+") playerTeam="+format["%1",_playerTeam]+"(type="+(typeName _playerTeam)+")\n";
 
 		if (_team == _playerTeam) then
 		{
@@ -78,21 +78,22 @@ if (isNull player) then
 			{
 				_marker setMarkerColorLocal ([_team, true] call _getTeamMarkerColor);
 				_marker setMarkerBrushLocal MARKER_BRUSH_OWNER;
-				format ["updateTerritoryMarkers: setting marker=%1 with MARKER_BRUSH_OWNER",_marker] call BIS_fnc_log;
-				diag_log format ["updateTerritoryMarkers: setting marker=%1 with MARKER_BRUSH_OWNER",_marker];
+				//format ["updateTerritoryMarkers: setting marker=%1 with MARKER_BRUSH_OWNER",_marker] call BIS_fnc_log;
+				//diag_log format ["updateTerritoryMarkers: setting marker=%1 with MARKER_BRUSH_OWNER",_marker];
+				_countSetOwner=_countSetOwner+1;
 			} else {
 				_marker setMarkerColorLocal ([_team, false] call _getTeamMarkerColor);
 				_marker setMarkerBrushLocal MARKER_BRUSH_OTHER;
-				format ["updateTerritoryMarkers: setting marker=%1 with MARKER_BRUSH_OTHER",_marker] call BIS_fnc_log;
-				diag_log format ["updateTerritoryMarkers: setting marker=%1 with MARKER_BRUSH_OTHER",_marker];
+				//format ["updateTerritoryMarkers: setting marker=%1 with MARKER_BRUSH_OTHER",_marker] call BIS_fnc_log;
+				//diag_log format ["updateTerritoryMarkers: setting marker=%1 with MARKER_BRUSH_OTHER",_marker];
 			};
 		}
 		else
 		{
 			_marker setMarkerColorLocal ([_team, false] call _getTeamMarkerColor);
 			_marker setMarkerBrushLocal MARKER_BRUSH_OTHER;
-			format ["updateTerritoryMarkers: setting marker=%1 with MARKER_BRUSH_OTHER",_marker] call BIS_fnc_log;
-			diag_log format ["updateTerritoryMarkers: setting marker=%1 with MARKER_BRUSH_OTHER",_marker];
+			//format ["updateTerritoryMarkers: setting marker=%1 with MARKER_BRUSH_OTHER",_marker] call BIS_fnc_log;
+			//diag_log format ["updateTerritoryMarkers: setting marker=%1 with MARKER_BRUSH_OTHER",_marker];
 		};
 	}
 	else
@@ -107,17 +108,16 @@ if (isNull player) then
 		{
 			_marker setMarkerColorLocal ([_team, true] call _getTeamMarkerColor);
 			_marker setMarkerBrushLocal MARKER_BRUSH_OWNER;
-			format ["updateTerritoryMarkers: setting marker=%1 with MARKER_BRUSH_OWNER",_marker] call BIS_fnc_log;
+			//format ["updateTerritoryMarkers: setting marker=%1 with MARKER_BRUSH_OWNER",_marker] call BIS_fnc_log;
+			_countSetOwner=_countSetOwner+1;
 		}
 		else
 		{
 			_marker setMarkerColorLocal ([_team, false] call _getTeamMarkerColor);
 			_marker setMarkerBrushLocal MARKER_BRUSH_OTHER;
-			format ["updateTerritoryMarkers: setting marker=%1 with MARKER_BRUSH_OTHER",_marker] call BIS_fnc_log;
+			//format ["updateTerritoryMarkers: setting marker=%1 with MARKER_BRUSH_OTHER",_marker] call BIS_fnc_log;
 		};
 	};
 } forEach _territories;
 
-hint _hintText;
-diag_log _hintText;
-_hintText call BIS_fnc_log;
+//diag_log format ["[INFO] updateTerritoryMarkers exiting after setting %1 markers as owner", _countSetOwner];

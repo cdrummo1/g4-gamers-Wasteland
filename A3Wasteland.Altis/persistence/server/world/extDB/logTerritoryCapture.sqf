@@ -32,25 +32,23 @@ _sideToStr =
 
 _currentTerritoryID = _terRec select 0;
 _currentTerritoryMarkerName=_terRec select 1;
-
-// convert player objects to UIDs
-_currentTerritoryOccupiersPlayers = _terRec select 2;
-_currentTerritoryOccupiersUIDs = [];
-if (count _currentTerritoryOccupiersPlayers >0) then 
+_currentTerritoryOccupiersUIDs = _terRec select 2;
+_currentTerritoryOwnerString = _terRec select 3 call _sideToStr;
+if (!(_terRec select 4 isEqualTo grpNull)) then 
 {
-	{
-		_currentTerritoryOccupiersUIDs pushBack getPlayerUID _x;
-	} forEach _currentTerritoryOccupiersPlayers;
+	_currentTerritoryGroupHolderString = "";
+} else {
+	_currentTerritoryGroupHolderString = format["%1", _terRec select 5];  // group object to STRING
 };
 
-_currentTerritoryOwnerString = _terRec select 3 call _sideToStr;
 
 _props =
 [
 	["Id", _currentTerritoryID],
 	["MarkerName", _currentTerritoryMarkerName],
 	["Occupiers", _currentTerritoryOccupiersUIDs],  		// array of UID strings
-	["SideHolder", _currentTerritoryOwnerString]  		// EAST, WEST, GUER, UNKNOWN
+	["SideHolder", _currentTerritoryOwnerString],  		// EAST, WEST, GUER, UNKNOWN
+	["GroupHolder", _currentTerritoryOwnerGroup]
 ];
 _insertValues = [_props, 0] call extDB_pairsToSQL;
 [format ["addTerritoryCaptureLog:%1",  _insertValues]] call extDB_Database_async;

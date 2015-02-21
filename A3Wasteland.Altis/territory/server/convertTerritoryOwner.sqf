@@ -15,9 +15,9 @@ if (isNil "currentTerritoryDetails") exitWith {};
 
 // attempt to be thread-safe with respect to monitorTerritories use of currentTerritoryDetails data
 if (monitorTerritoriesActive) then {
-	diag_log "convertTerritoryOwner wait on monitorTerritories to go inactive";
-	waitUntil !(monitorTerritoriesActive);
-	diag_log "convertTerritoryOwner resume";
+	diag_log "[INFO] convertTerritoryOwner wait on monitorTerritories to go inactive";
+	waitUntil {!monitorTerritoriesActive};
+	diag_log "[INFO] convertTerritoryOwner resume";
 };
 
 {
@@ -44,7 +44,7 @@ if (monitorTerritoriesActive) then {
 				_x set [8, _currentTerritoryOwnerGroupUIDs];
 			
 				// update the territory db record with the new group ID and group UIDs if this is an Indy territory
-				if (_territorySavingOn && ) then 
+				if (_territorySavingOn) then 
 				{
 					_currentTerritoryID = _x select 0;
 					_currentTerritoryName = _x select 1;

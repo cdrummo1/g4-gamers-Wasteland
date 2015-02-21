@@ -35,7 +35,7 @@ if (_territorySavingOn) then
 while {true} do
 {
 
-	diag_log "territoryPayroll loop start";
+	//diag_log "territoryPayroll loop start";
 	
 	if (_territoryCapped) then
 	{
@@ -54,9 +54,9 @@ while {true} do
 	
 	// attempt to be thread-safe with respect to monitorTerritories use of currentTerritoryDetails data
 	if (monitorTerritoriesActive) then {
-		diag_log "territoryPayroll wait on monitorTerritories to go inactive";
-		waitUntil !(monitorTerritoriesActive);
-		diag_log "territoryPayroll resume";
+		diag_log "[INFO] territoryPayroll wait on monitorTerritories to go inactive";
+		waitUntil {!monitorTerritoriesActive};
+		diag_log "[INFO] territoryPayroll resume";
 	};
 	
 	_payouts = [];
@@ -76,24 +76,27 @@ while {true} do
 		_territoryOwnerGroup = _x select 7;
 		_territoryOwnerGroupUIDs = _x select 8;
 
-		if (!(_territoryOwnerSide in [OPFOR,BLUFOR]) && !(_territoryOwnerGroup isEqual grpNull)) then
+		diag_log format ["territoryPayroll checking %1: occupiers=%2 owner=%3/%4 chrono=%5", _territoryName,_territoryOccupiers,_territoryOwnerSide,_territoryOwnerGroup,_territoryChrono];
+
+		if (!(_territoryOwnerSide in [OPFOR,BLUFOR]) && {!(_territoryOwnerGroup in [grpNull])}) then
 		{
 			// this is an indy cap ... refresh the groupUIDs
 			_newTerritoryOwnerGroupUIDs = [];
 			{
 				if (isPlayer _x) then
 				{
-					_newTerritoryOwnerGroupUIDs pushBack _x;
+					_newTerritoryOwnerGroupUIDs pushBack getPlayerUID _x;
 				};
 			} forEach (units _territoryOwnerGroup);
 			
-			if (!(_newTerritoryOwnerGroupUIDs isEqual _territoryOwnerGroupUIDs)) then {
+			if (!(_newTerritoryOwnerGroupUIDs isEqualTo _territoryOwnerGroupUIDs)) then 
+			{
+				// Independent group owning a territory had a change in group membership
 				_refreshNeeded=true;
 				_territoryOwnerGroupUIDs = _newTerritoryOwnerGroupUIDs;
 			};
 		};
 		
-		diag_log format ["territoryPayroll checking %1: occupiers=%2 owner=%3/%4 chrono=%5", _territoryName,_territoryOccupiers,_territoryOwnerSide,_territoryOwnerGroup,_territoryChrono];
 		
 		if (_territoryChrono > 0) then
 		{
@@ -117,13 +120,15 @@ while {true} do
 				};
 			};
 			
-			// update the persistence data, if saving is enabled and is needed
-			if (_territorySavingOn && _refreshNeeded) then {
-				[_territoryId, _territoryName, _territoryOccupiers, _territoryOwnerSide, _territoryChrono, _territoryOwnerGroup, _territoryOwnerGroupUIDs] call fn_saveTerritory;
+			// update the persistence data, if saving is enabled ... will update _territoryChrono & _territoryOwnerGroupUIDs fields
+			if (_territorySavingOn) then {
+				//	Marker ID,MarkerName,OccupierUIDs,SideHolder,timeHeld,GroupHolder,GroupHolderUIDs
+				[_territoryId, _territoryName, _territoryOccupierUIDs, _territoryOwnerSide, _territoryChrono, _territoryOwnerGroup, _territoryOwnerGroupUIDs] call fn_saveTerritory;
 			};
-			
-			_newTerritoryDetails pushBack [_territoryId, _territoryName, _territoryOccupierUIDs, _territoryOccupiers, _territoryOwnerSide, _territoryChrono, _territoryContestTime, _territoryOwnerGroup, _territoryOwnerGroupUIDs];
 		};
+		
+		_newTerritoryDetails pushBack [_territoryId, _territoryName, _territoryOccupierUIDs, _territoryOccupiers, _territoryOwnerSide, _territoryChrono, _territoryContestTime, _territoryOwnerGroup, _territoryOwnerGroupUIDs];
+
 	} forEach currentTerritoryDetails;
 
 	// update currentTerritoryDetails with refreshed data
