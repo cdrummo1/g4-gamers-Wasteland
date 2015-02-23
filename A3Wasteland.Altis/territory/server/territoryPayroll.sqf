@@ -16,41 +16,30 @@ _moneyAmount = ["A3W_payrollAmount", 100] call getPublicVar;
 _territoryCapped = false;
 _territorySavingOn = ["A3W_territorySaving"] call isConfigOn;
 
-diag_log format ["territoryPayroll invoked with timeInterval=%1 moneyAmount=%2 territorySavingOn=%3", _timeInterval, _moneyAmount,_territorySavingOn];
+diag_log format ["[INFO] territoryPayroll invoked with timeInterval=%1 moneyAmount=%2 territorySavingOn=%3", _timeInterval, _moneyAmount,_territorySavingOn];
 
 if (_territorySavingOn) then 
 {
 	// see if the initial persistence load brought with it any capped territories
 	{
 		_territoryOwnerSide = _x select 4;		// side
-		
 		if !(_territoryOwnerSide isEqualTo sideUnknown) then
 		{
 			_territoryCapped = true;
-			diag_log format ["Territory %1 is owned by %2 ... set territoryCapped to true", _x select 1, _territoryOwnerSide];
 		};
 	} forEach currentTerritoryDetails;
 };
 
 while {true} do
 {
-
-	//diag_log "territoryPayroll loop start";
-	
 	if (_territoryCapped) then
 	{
-		// Capped territories ... wait the full time
-		diag_log format ["territoryPayroll w/ capped territories ... sleeping for %1 sec", _timeInterval];
 		sleep _timeInterval;
 	}
 	else
 	{
-		// No capped territories ... try again in 1 minute
-		diag_log "territoryPayroll w/o capped territories ... sleeping for 60 sec";
 		sleep 60;
 	};
-
-	diag_log "territoryPayroll loop wake";
 	
 	// attempt to be thread-safe with respect to monitorTerritories use of currentTerritoryDetails data
 	if (monitorTerritoriesActive) then {
@@ -75,8 +64,6 @@ while {true} do
 		_territoryContestTime = _x select 6;
 		_territoryOwnerGroup = _x select 7;
 		_territoryOwnerGroupUIDs = _x select 8;
-
-		diag_log format ["territoryPayroll checking %1: occupiers=%2 owner=%3/%4 chrono=%5", _territoryName,_territoryOccupiers,_territoryOwnerSide,_territoryOwnerGroup,_territoryChrono];
 
 		if (!(_territoryOwnerSide in [OPFOR,BLUFOR]) && {!(_territoryOwnerGroup in [grpNull])}) then
 		{
@@ -105,7 +92,6 @@ while {true} do
 			if (_territoryChrono >= _timeInterval) then
 			{
 				_added = false;
-
 				{
 					if (((_x select 0) isEqualTo _territoryOwnerSide) && ((_x select 1) isEqualTo _territoryOwnerGroup)) exitWith
 					{
@@ -122,20 +108,15 @@ while {true} do
 			
 			// update the persistence data, if saving is enabled ... will update _territoryChrono & _territoryOwnerGroupUIDs fields
 			if (_territorySavingOn) then {
-				//	Marker ID,MarkerName,OccupierUIDs,SideHolder,timeHeld,GroupHolder,GroupHolderUIDs
 				[_territoryId, _territoryName, _territoryOccupierUIDs, _territoryOwnerSide, _territoryChrono, _territoryOwnerGroup, _territoryOwnerGroupUIDs] call fn_saveTerritory;
 			};
 		};
 		
 		_newTerritoryDetails pushBack [_territoryId, _territoryName, _territoryOccupierUIDs, _territoryOccupiers, _territoryOwnerSide, _territoryChrono, _territoryContestTime, _territoryOwnerGroup, _territoryOwnerGroupUIDs];
-
 	} forEach currentTerritoryDetails;
 
 	// update currentTerritoryDetails with refreshed data
 	currentTerritoryDetails = _newTerritoryDetails;
-	
-	diag_log format ["territoryPayroll has %1 payouts to make", count _payouts];
-	
 	{
 		_team = _x select 0;
 		_group = _x select 1; 
@@ -153,6 +134,3 @@ while {true} do
 		};
 	} forEach _payouts;
 };
-
-diag_log "territoryPayroll exit";
-

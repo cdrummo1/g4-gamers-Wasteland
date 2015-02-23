@@ -3,10 +3,10 @@
 // ******************************************************************************************
 /*********************************************************#
 # @@ScriptName: updateConnectingClients.sqf
-# @@Author: Nick 'Bewilderbeest' Ludlam <bewilder@recoil.org>, AgentRev
+# @@Author: Nick 'Bewilderbeest' Ludlam <bewilder@recoil.org>, AgentRev, Munch
 # @@Create Date: 2013-09-15 16:26:38
-# @@Modify Date: 2013-09-15 17:22:37
-# @@Function: Updates JIP players with the correct territory colours
+# @@Modify Date: 2015-02-22 by Munch to handle persistent territory data
+# @@Function: Updates connecting players with the correct territory colours/brushes
 #*********************************************************/
 
 if (!isServer) exitWith {};
@@ -23,8 +23,7 @@ _playerTeam = side _player;
 _playerGroup = group _player;
 _JIP = _this select 1;
 
-diag_log format ["updateConnectingClients [Player: %1] [JIP: %2]", _player, _JIP];
-diag_log format ["updateConnectingClients looping over %1 currentTerritoryDetails recs with %2 recs each", count currentTerritoryDetails, count (currentTerritoryDetails select 0)];
+diag_log format ["[INFO] updateConnectingClients handling request from [Player: %1] [JIP: %2]", _player, _JIP];
 
 _markers = [];
 _newTerritoryOwners = [];
@@ -53,7 +52,7 @@ _newTerritoryDetails = [];
 				{
 					[_player] join _markerGroup;
 					_playerGroup = _markerGroup;
-					diag_log format ["updateConnectingClients: player %1 UID is in markerGroupUIDs for %2 -> joining player to group %3 (PRI 2 Assign)", _player, _markerName, _markerGroup];
+					diag_log format ["[INFO] updateConnectingClients: player %1 UID is in markerGroupUIDs for %2 -> joining player to group %3 (PRI 2 Assign)", _player, _markerName, _markerGroup];
 				} else {
 					// 1st priority: player previously capped this territory ... assign group ownership of this territory to his group
 					if (_playerUID in _markerCaptureUIDs) then 
@@ -61,7 +60,7 @@ _newTerritoryDetails = [];
 						// Indy player previously captured this UID ... assign/re-assign ownership of the marker to this player's group & clear other UIDs
 						_markerGroupUIDs = _playerUID;
 						_markerGroup = _playerGroup;
-						diag_log format ["updateConnectingClients: player %1 UID is in markerCaptureUIDs for %2 -> assigning marker to playerGroup (%3) (PRI 1 Assign)", _player, _markerName, _markerGroup];
+						diag_log format ["[INFO] updateConnectingClients: player %1 UID is in markerCaptureUIDs for %2 -> assigning marker to playerGroup (%3) (PRI 1 Assign)", _player, _markerName, _markerGroup];
 						_found = true;
 					};
 					
@@ -101,5 +100,11 @@ if !(currentTerritoryDetails isEqualTo _newTerritoryDetails) then
 	currentTerritoryDetails = _newTerritoryDetails;
 };
 
-// exec updateTerritoryMarkers on the client passing the _markers array to loop over with ownerCheck set to true
-[[[_markers, true], "territory\client\updateTerritoryMarkers.sqf"], "BIS_fnc_execVM", _player, false] call BIS_fnc_MP;
+if (_JIP) then 
+{
+	// exec updateTerritoryMarkers on the client passing the _markers array to loop over with ownerCheck set to true
+	[[[_markers, true], "territory\client\updateTerritoryMarkers.sqf"], "BIS_fnc_execVM", _player, false] call BIS_fnc_MP;
+} else {
+	// return the result to local caller to return back to the client as a targeted pvar for use on the client
+	[_markers, true]
+};

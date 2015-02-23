@@ -19,13 +19,12 @@ if (!isServer) exitWith {};
 	{
 		if ({_x select 0 == _marker} count (["config_territory_markers", []] call getPublicVar) > 0) then
 		{
-			diag_log format ["Creating territory capture trigger for '%1'", _marker];
 			_trig = createTrigger ["EmptyDetector", markerPos _marker];
 			_trig setVariable ["captureTriggerMarker", _marker, true];
 		}
 		else
 		{
-			diag_log format ["WARNING: No config_territory_markers definition for marker '%1'. Deleting it!", _marker];
+			diag_log format ["[WARN]: No config_territory_markers definition for marker '%1'. Deleting it!", _marker];
 			deleteMarker _marker;
 		};
 	};

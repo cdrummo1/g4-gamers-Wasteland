@@ -4,7 +4,9 @@
 //	@file Name: initPlayerServer.sqf
 //	@file Author: AgentRev
 
-if (!isNil "updateConnectingClients") then
-{
-	_this spawn updateConnectingClients;
-};
+// Below call to updateConnectingClients replaced by client initiated pvar_requestTerritoryData handler in \territory\server\setupTerritories.sqf
+
+//if (!isNil "updateConnectingClients") then
+//{
+//	_this spawn updateConnectingClients;
+//};

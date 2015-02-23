@@ -6,7 +6,7 @@
 
 // Notes: (Munch 2-18-2015) This script gets called three different ways:
 //	Method 1: As the action on the public variable event handler for pvar_updateTerritoryMarkers (set & broadcast by the server monitorTerritories script when a territory is captured, or when a player is kicked from a group)
-//	Method 2. As a remotely execVM'd script that gets called from the server-side onPlayerConnected handler (onPlayerConnected)
+//	Method 2. As execVM'd from applyTerritory data with payload from pvar_request/response of territory data on client initialization
 //   Method 3: As a client-side direct call from e.g., <acceptGroupInvite, leaveGroup>.sqf
 //
 // These two different invocations get different arguments to process:
@@ -30,7 +30,7 @@
 
 private ["_hintText", "_territories", "_ownerCheck", "_isOwner", "_getTeamMarkerColor", "_marker", "_team", "_playerTeam", "_countSetOwner"];
 
-format ["updateTerritoryMarkers called with '%1'",_this] call BIS_fnc_log;
+diag_log format ["updateTerritoryMarkers called with '%1'",_this];
 
 _hintText="";
 _countSetOwner=0;

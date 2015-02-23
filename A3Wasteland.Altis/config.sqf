@@ -26,10 +26,4 @@ config_refuel_amounts = compileFinal str
 
 // NOTE: Player saving and money settings moved to external config (A3Wasteland_settings\main_config.sqf), default values are set in server\default_config.sqf
 
-// Is player saving enabled?
-// config_player_saving_enabled = compileFinal "0";
-
-// How much do players spawn with?
-// config_initial_spawn_money = compileFinal "100";
-
 config_territory_markers = compileFinal preprocessFileLineNumbers "mapConfig\territories.sqf";

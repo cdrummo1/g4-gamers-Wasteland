@@ -89,6 +89,7 @@ forEach
 	"A3W_showGunStoreStatus",
 	"A3W_gunStoreIntruderWarning",
 	"A3W_playerSaving",
+	"A3W_territorySaving",
 	"A3W_combatAbortDelay",
 	"A3W_unlimitedStamina",
 	"A3W_bleedingTime",
@@ -207,11 +208,15 @@ if (_playerSavingOn || _objectSavingOn || _vehicleSavingOn || _territorySavingOn
 
 	call compile preProcessFileLineNumbers format ["persistence\server\setup\%1\init.sqf", call A3W_savingMethodDir];
 
-	
+	A3W_territoriesReady = false;  // this will get set to true when monitorTerritories is ready to go
 	if (count (["config_territory_markers", []] call getPublicVar) > 0) then
 	{
 		diag_log "[INFO] A3W territory capturing is ENABLED";
 		[] execVM "territory\server\monitorTerritories.sqf";
+		
+		if (_territorySavingOn) then {
+			_setupTerritories = [] spawn compile preprocessFileLineNumbers "territory\server\setupTerritories.sqf"; // scriptDone stays stuck on false when using execVM on Linux
+		};
 	}
 	else
 	{

@@ -16,21 +16,14 @@ if (!isServer) exitWith
 	publicVariableServer "pvar_updatePlayerScore";
 };
 
-diag_log format ["fn_addScore called with player=%1 column=%2 score=%3",_player,_column,_score];
-
 if (isPlayer _player) then
 {
 	_var = format ["A3W_playerScore_%1_%2", _column, getPlayerUID _player];
 	_val = missionNamespace getVariable [_var, 0];
 
-	diag_log format ["fn_addScore got var '%1' = %2", _var, _val];
-	
 	missionNamespace setVariable [_var, _val + _score];
 	publicVariable _var;
 
-	diag_log format ["fn_addScore set var '%1' = %2", _var, ([_player, "captureCount"] call fn_getScore)];
-	
-	
 	// add kills and deaths to team score
 	if (_column == "playerKills" || _column == "deathCount") then
 	{
@@ -63,5 +56,5 @@ if (isPlayer _player) then
 		[getPlayerUID _player, _column, _score] call fn_updateStats;
 	};
 } else {
-	diag_log format ["ERROR - fn_addScore failed isPlayer '%1' check ... no updates made", _player];
+	diag_log format ["[ERROR] fn_addScore failed isPlayer '%1' check ... no updates made", _player];
 };
