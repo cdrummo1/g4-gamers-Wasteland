@@ -26,7 +26,7 @@ else
 
 	closeDialog 0;
 
-	// Recherche d'un objet du type demandé
+	// Search for an object of the requested type
 	_objet_a_decharger = objNull;
 	for [{_i = 0}, {_i < count _objets_charges}, {_i = _i + 1}] do
 	{
@@ -38,7 +38,7 @@ else
 
 	if !(isNull _objet_a_decharger) then
 	{
-		// On mémorise sur le réseau le nouveau contenu du transporteur (càd avec cet objet en moins)
+		// On the network is stored the new content of the carrier (ie, with this object in text)
 		_objets_charges = _objets_charges - [_objet_a_decharger];
 		_transporteur setVariable ["R3F_LOG_objets_charges", _objets_charges, true];
 		_objet_a_decharger setVariable ["R3F_LOG_est_transporte_par", objNull, true];
@@ -60,7 +60,7 @@ else
 
 			sleep 2;
 
-			// On pose l'objet au hasard vers l'arrière du transporteur
+			// The object is placed at random rearward carrier
 			_objet_a_decharger setPos [
 				(getPos _transporteur select 0) - ((_dimension_max+5+(random 10)-(boundingBox _transporteur select 0 select 1))*sin (getDir _transporteur - 90+random 180)),
 				(getPos _transporteur select 1) - ((_dimension_max+5+(random 10)-(boundingBox _transporteur select 0 select 1))*cos (getDir _transporteur - 90+random 180)),
