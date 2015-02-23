@@ -55,6 +55,4 @@ if (isPlayer _player) then
 		// Log Scores to DB
 		[getPlayerUID _player, _column, _score] call fn_updateStats;
 	};
-} else {
-	diag_log format ["[ERROR] fn_addScore failed isPlayer '%1' check ... no updates made", _player];
 };

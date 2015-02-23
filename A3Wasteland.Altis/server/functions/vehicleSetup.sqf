@@ -36,10 +36,10 @@ if !(_class isKindOf "AllVehicles") exitWith {}; // if not actual vehicle, finis
 clearBackpackCargoGlobal _vehicle;
 
 // Disable thermal on all manned vehicles
-if (getNumber (configFile >> "CfgVehicles" >> _class >> "isUav") < 1) then
-{
-	_vehicle disableTIEquipment true;
-};
+//if (getNumber (configFile >> "CfgVehicles" >> _class >> "isUav") < 1) then
+//{
+//	_vehicle disableTIEquipment true;
+//};
 
 _vehicle setUnloadInCombat [true, false]; // Prevent AI gunners from getting out of vehicle while in combat if it's in working condition
 
@@ -104,8 +104,7 @@ switch (true) do
 	case (_class isKindOf "Plane_Fighter_03_base_F"):
 	{
 		_vehicle addMagazine "300Rnd_20mm_shells";
-		// Tops
-		_vehicle removeWeaponTurret ["missiles_SCALPEL",[-1]]; 
+		_vehicle removeWeaponTurret ["missiles_SCALPEL",[-1]];
 	};
 };
 

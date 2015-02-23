@@ -78,8 +78,9 @@ if (isServer) then
 //init non vanilla addons
 [] execVM "addons\laptop\init.sqf";						// Addon for hack laptop mission
 [] execVM "addons\vactions\functions.sqf";				
-[] execVM "addons\EtV\init.sqf";						// Explosives to vehicles
+[] execVM "addons\Explosives-To-Vehicle\init.sqf"; // addon for explosives to vehicles
 [] execVM "addons\gear\default_gear.sqf";
 [] execVM "addons\outlw_magRepack\MagRepack_init_sv.sqf";
 [] execVM "addons\zlt_fastrope\zlt_fastrope.sqf";
 [] execVM "addons\statusBar\fn_statusBar.sqf";
+

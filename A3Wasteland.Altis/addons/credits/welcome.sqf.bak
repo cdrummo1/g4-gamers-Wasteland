@@ -49,20 +49,18 @@ _role3 = "Our G4 TS3 server info is:";
 _role3names = ["ts.g4-gamers.com"];
 _role4 = "Check out the server stats at";
 _role4names = ["www.g4-gamers.com"];
-_role5 = "Need help?  Goto the map M key,";
-_role5names = ["there you can click on Server Features"];
+_role5 = "Need help?  Goto your map,";
+_role5names = ["click on Server Features"];
 _role6 = "or";
-_role6names = ["See who are the G4 Admin's"];
-_role7 = "Always checkout the";
+_role6names = ["G4 Admin info"];
+_role7 = "Always check:";
 _role7names = ["Server change log for server changes/updates!"];
-_role8 = "Did you know we have player loadouts?";
-_role8names = ["Check our website for player loadout 4 details"];
-_role9 = "Go to pimp your shit/Server perks at g4-gamers.com,";
-_role9names = ["Don't forget we also have a Stratis & a Altis server link to the Banks!"];
-_role10 = "Chernarus!!";
-_role10names = ["You got to checkout the Chernarus wasteland server on-line NOW!!"];
-_role11 = "Again,";
-_role11names = ["THANK YOU and HAVE FUN!!!"];
+_role8 = "Did you know we have server loadouts?";
+_role8names = ["Check our website for server loadout details"];
+_role9 = "Goto pimp your shit/Server perks at g4-gamers.com,";
+_role9names = ["Don't forget we also have a Stratis 1 & 2 servers linked to this server!!"];
+_role10 = "Again,";
+_role10names = ["THANK YOU and HAVE FUN!!!"];
 
 {
 	sleep 2;
@@ -92,6 +90,5 @@ _role11names = ["THANK YOU and HAVE FUN!!!"];
 	[_role7, _role7names],
 	[_role8, _role8names],
 	[_role9, _role9names],
-	[_role10, _role10names],
-	[_role11, _role11names] //make SURE the last one here does NOT have a , at the end
+	[_role10, _role10names] //make SURE the last one here does NOT have a , at the end
 ];

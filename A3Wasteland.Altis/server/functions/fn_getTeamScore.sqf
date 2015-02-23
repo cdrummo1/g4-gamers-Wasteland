@@ -10,7 +10,6 @@ _team = [_this, 0, sideUnknown, [sideUnknown,grpNull]] call BIS_fnc_param;
 _column = _this select 1;
 _val = 0;
 
-diag_log format ["[INFO] fn_getTeamScore called with team='%1'  column='%2' _this='%3'  A3W_currentTerritoryOwners has %4 recs", _team, _column, _this, (count A3W_currentTerritoryOwners)];
 
 if !(_team isEqualTo sideUnknown || _team isEqualTo grpNull) then
 {
@@ -35,7 +34,5 @@ if !(_team isEqualTo sideUnknown || _team isEqualTo grpNull) then
 		};
 	};
 };
-
-diag_log format ["[INFO] fn_getTeamScore returning val=%1 for team=%2 column=%3", _val, _team, _column];
 
 _val
