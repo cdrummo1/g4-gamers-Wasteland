@@ -18,7 +18,7 @@ else
 
 	private ["_object", "_classes_carriers", "_carrier", "_i"];
 
-	_object = R3F_LOG_joueur_deplace_object;
+	_object = R3F_LOG_joueur_deplace_objet;
 
 	_carrier = nearestObjects [_object, R3F_LOG_classes_carriers, 22];
 	// Because the carrier can be a transportable object
@@ -32,27 +32,27 @@ else
 		{
 			private ["_objects_charges", "_chargement_actuel", "_cout_capacite_object", "_chargement_maxi"];
 
-			_objects_charges = _carrier getVariable "R3F_LOG_objects_charges";
+			_objects_charges = _carrier getVariable "R3F_LOG_objets_charges";
 
 			// The current load calculation
 			_chargement_actuel = 0;
 			{
-				for [{_i = 0}, {_i < count R3F_LOG_CFG_objects_transportables}, {_i = _i + 1}] do
+				for [{_i = 0}, {_i < count R3F_LOG_CFG_objets_transportables}, {_i = _i + 1}] do
 				{
-					if (_x isKindOf (R3F_LOG_CFG_objects_transportables select _i select 0)) exitWith
+					if (_x isKindOf (R3F_LOG_CFG_objets_transportables select _i select 0)) exitWith
 					{
-						_chargement_actuel = _chargement_actuel + (R3F_LOG_CFG_objects_transportables select _i select 1);
+						_chargement_actuel = _chargement_actuel + (R3F_LOG_CFG_objets_transportables select _i select 1);
 					};
 				};
 			} forEach _objects_charges;
 
 			// Search of the capacity of the object
 			_cout_capacite_object = 99999;
-			for [{_i = 0}, {_i < count R3F_LOG_CFG_objects_transportables}, {_i = _i + 1}] do
+			for [{_i = 0}, {_i < count R3F_LOG_CFG_objets_transportables}, {_i = _i + 1}] do
 			{
-				if (_object isKindOf (R3F_LOG_CFG_objects_transportables select _i select 0)) exitWith
+				if (_object isKindOf (R3F_LOG_CFG_objets_transportables select _i select 0)) exitWith
 				{
-					_cout_capacite_object = (R3F_LOG_CFG_objects_transportables select _i select 1);
+					_cout_capacite_object = (R3F_LOG_CFG_objets_transportables select _i select 1);
 				};
 			};
 
@@ -71,14 +71,14 @@ else
 			{
 				// Is stored on the network the new vehicle content
 				_objects_charges = _objects_charges + [_object];
-				_carrier setVariable ["R3F_LOG_objects_charges", _objects_charges, true];
+				_carrier setVariable ["R3F_LOG_objets_charges", _objects_charges, true];
 				_object setVariable ["R3F_LOG_est_transporte_par", _carrier, true];
 
 				player globalChat STR_R3F_LOG_action_charger_deplace_en_cours;
 
 				// Make releasing the object the player (if it has in " hand " )
 				_object disableCollisionWith _carrier;
-				R3F_LOG_joueur_deplace_object = objNull;
+				R3F_LOG_joueur_deplace_objet = objNull;
 				sleep 2;
 
 				// Choose a disengaged position ( 50m radius sphere ) in the air in a cube 9km ^ 3
