@@ -59,7 +59,8 @@ if (!isNil "_sender" && {side _newGroup == playerSide}) then
 	pvar_convertTerritoryOwner = [_newTerritories, _newGroup];
 	publicVariableServer "pvar_convertTerritoryOwner";
 
-	if (!(side _newGroup in [OPFOR,BLUFOR])) {
+	if (!(side _newGroup in [OPFOR,BLUFOR])) then 
+	{
 		[_newTerritories, false, side _newGroup, true] call updateTerritoryMarkers;
 	};
 

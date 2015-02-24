@@ -12,9 +12,6 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 -- -----------------------------------------------------
 USE `a3wasteland` ;
 
-DROP TABLE `territorycapturestatus`;
-DROP TABLE `territorycapturelog`;
-
 -- -----------------------------------------------------
 -- Table `territorycapturestatus`
 -- -----------------------------------------------------
