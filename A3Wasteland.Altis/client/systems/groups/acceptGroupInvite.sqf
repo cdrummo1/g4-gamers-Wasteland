@@ -47,7 +47,7 @@ if (!isNil "_sender" && {side _newGroup == playerSide}) then
 
 	if (_newGroup == group _sender) then
 	{
-		pvar_processGroupInvite = ["accept", _playerUID];
+		pvar_processGroupInvite = ["accept", _playerUID, _oldGroup, _newGroup];
 		publicVariableServer "pvar_processGroupInvite";
 	};
 

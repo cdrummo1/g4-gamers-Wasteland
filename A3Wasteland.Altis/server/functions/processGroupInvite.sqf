@@ -6,6 +6,9 @@
 
 private ["_type", "_sender", "_receiver", "_invite", "_senderUID", "_receiverUID"];
 
+
+diag_log "{INFO] processGroupInvite invoked with _this='%1'",_this];
+
 _type = [_this, 0, "", [""]] call BIS_fnc_param;
 
 switch (_type) do
@@ -38,7 +41,9 @@ switch (_type) do
 	case "accept":
 	{
 		_receiverUID = [_this, 1, "", [""]] call BIS_fnc_param;
-
+		_oldGroup =  [_this, 2, grpNull, [""]] call BIS_fnc_param;
+		_newGroup =  [_this, 3, grpNull, [""]] call BIS_fnc_param;
+		
 		// Clear any invites sent from or to him
 		{
 			if (_receiverUID in _x) then
@@ -49,6 +54,10 @@ switch (_type) do
 
 		currentInvites = currentInvites - [-1];
 		publicVariable "currentInvites";
+		
+		// process territories
+		
+		
 	};
 	case "decline":
 	{
