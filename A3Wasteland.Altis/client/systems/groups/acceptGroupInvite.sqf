@@ -6,6 +6,9 @@
 //	@file Author: [404] Deadbeat, AgentRev
 //	@file Created: 20/11/2012 05:19
 //  @file Modified: Munch 2015-02-20 to handle server-side group ownerships of territories
+//  @file   This is a client-side script, invoked when a player accepts a group invite.  It 
+//			sends pvar_processGroupInvite to the server for processing by \server\functions\processGroupInvite
+//			which will handle any territory transfers and broadcast results back to affected clients
 
 private ["_playerUID", "_senderUID", "_sender", "_newGroup"];
 
@@ -35,33 +38,15 @@ if (!isNil "_sender" && {side _newGroup == playerSide}) then
 {
 	_oldGroup = group player;
 
-	_oldTerritories = _oldGroup getVariable ["currentTerritories", []];
-	_newTerritories = _newGroup getVariable ["currentTerritories", []];
-
 	{ _newTerritories pushBack _x } forEach _oldTerritories;
 
 	[player] join _newGroup;
 	waitUntil {_newGroup = group player; _newGroup != _oldGroup};
 
-	_newGroup setVariable ["currentTerritories", _newTerritories, true];
-
 	if (_newGroup == group _sender) then
 	{
 		pvar_processGroupInvite = ["accept", _playerUID, _oldGroup, _newGroup];
 		publicVariableServer "pvar_processGroupInvite";
-	};
-
-	if (!isNull _oldGroup) then
-	{
-		_oldGroup setVariable ["currentTerritories", [], true];
-	};
-
-	pvar_convertTerritoryOwner = [_newTerritories, _newGroup];
-	publicVariableServer "pvar_convertTerritoryOwner";
-
-	if (!(side _newGroup in [OPFOR,BLUFOR])) then 
-	{
-		[_newTerritories, false, side _newGroup, true] call updateTerritoryMarkers;
 	};
 
 	player globalChat "You have accepted the invite.";

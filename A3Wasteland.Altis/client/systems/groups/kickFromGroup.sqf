@@ -27,22 +27,13 @@ _playerData = _groupListBox lbData _index;
 if (isNil "_target") exitWith {player globalChat "you must select someone to kick first"};
 if (_target == player) exitWith {player globalChat "you can't kick yourself"};
 
-_group = group _target;  // the group to kick the target from
-
-if (!(side _target in [OPFOR,BLUFOR])) then 
-{
-	// indy player got kicked ... update his display to show he no longer has ownership of the group's territories
-	pvar_updateTerritoryMarkers = [_target, [_group getVariable ["currentTerritories", []], false, side _target, false]];
-	publicVariable "pvar_updateTerritoryMarkers";	
-};
-
 [_target] join grpNull;
 _target setVariable ["currentGroupRestore", grpNull, true];
 _target setVariable ["currentGroupIsLeader", false, true];
+waitUntil {grpNull = group player};
 
-// remove the player from the currentTerritoryDetails & persistence recs for this group
-_oldTerritories = _group getVariable ["currentTerritories", []];
-pvar_convertTerritoryOwner = [_oldTerritories, _group];
-publicVariableServer "pvar_convertTerritoryOwner";
+pvar_processGroupInvite = ["kick", _senderUID, _playerUID];
+publicVariableServer "pvar_processGroupInvite";
+
 
 player globalChat format["you have kicked %1 from the group",name _target];

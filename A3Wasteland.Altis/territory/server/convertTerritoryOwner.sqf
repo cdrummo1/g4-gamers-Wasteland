@@ -3,10 +3,10 @@
 // ******************************************************************************************
 //	@file Name: convertTerritoryOwner.sqf
 //	@file Author: AgentRev
-//  @file Modified: Munch 2015-02-20 to handle server-side group ownerships of territories
+//  @file Modified: Munch 2015-02-20 to handle server-side group ownerships of territories changes
 
-private ["_newTerritories", "_newGroup", "_territory", "_territorySavingOn", "_currentTerritoryID", "_currentTerritoryName", "_currentTerritoryOccupiersPlayers", "_currentTerritoryOwner", "_currentTerritoryChrono", 
-"_currentTerritoryOwnerGroupUIDs", "_currentTerritoryOwnerGroup"];
+private ["_newTerritories", "_newGroup", "_territory", "_territorySavingOn", "_currentTerritoryID", "_currentTerritoryName", "_currentTerritoryOccupiersPlayers", 
+"_currentTerritoryOwner", "_currentTerritoryChrono", "_currentTerritoryOwnerGroupUIDs", "_currentTerritoryOwnerGroup"];
 
 _newTerritories = _this select 0;
 _newGroup = _this select 1;
@@ -21,11 +21,11 @@ if (monitorTerritoriesActive) then {
 };
 
 {
+	_newTerritoryOwners=[];
 	_territory = _x;
 	{
-		if (_x select 1 == _territory) exitWith
+		if (_x select 1 == _territory) then
 		{
-		
 			if (!(_currentTerritoryOwner in [BLUFOR,OPFOR])) then 
 			{
 				// update the currentTerritoriesDetails rec with the _newGroup
@@ -57,5 +57,26 @@ if (monitorTerritoriesActive) then {
 				};
 			};
 		};
+		
+		if (_x select 4 != sideUnknown) then {
+			if (!(_x select 4 in [BLUFOR,OPFOR])) then
+			{
+				_newTerritoryOwners pushBack [_x select 1, _x select 7];  // territory/group
+			} else {
+				_newTerritoryOwners pushBack [_x select 1, _x select 4];	// territory/team
+			};
+		};
+		
 	} forEach currentTerritoryDetails;
 } forEach _newTerritories;
+
+if !(A3W_currentTerritoryOwners isEqualTo _newTerritoryOwners) then
+{
+	A3W_currentTerritoryOwners = _newTerritoryOwners;
+	publicVariable "A3W_currentTerritoryOwners";
+	
+	diag_log text "[INFO] converTerritoryOwner: A3W_currentTerritoryOwners was updated:";
+	{
+		diag_log format ["    %1                  %2",_x select 0, _x select 1];   
+	} forEach A3W_currentTerritoryOwners;
+};
