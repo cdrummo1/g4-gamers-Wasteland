@@ -6,10 +6,9 @@
 //  @file Modified by Munch to handle Indy group changes and modify territory ownerships, if any
 //  Note: pvar_processGroupInvite = ["accept", _playerUID, _oldGroup, _newGroup]
 
-private ["_type", "_sender", "_receiver", "_invite", "_senderUID", "_receiverUID"];
+private ["_type", "_sender", "_receiver", "_invite", "_receiverUID", "_oldGroup", "_newGroup", "_newTerritories", "_oldTerritories", "_senderUID", "_playerUID"];
 
-
-diag_log "{INFO] processGroupInvite invoked with _this='%1'",_this];
+diag_log format ["{INFO] processGroupInvite invoked with _this='%1'",_this];
 
 _type = [_this, 0, "", [""]] call BIS_fnc_param;
 
@@ -60,7 +59,7 @@ switch (_type) do
 		publicVariable "currentInvites";
 		
 		// Handling for independents
-		if (!(side _newGroup) in [BLUFOR,OPFOR]) then {
+		if (!((side _newGroup) in [BLUFOR,OPFOR])) then {
 			// process territories
 			
 			// the territories currently held by the group
@@ -119,18 +118,24 @@ switch (_type) do
 		_senderUID = [_this, 1, "", [""]] call BIS_fnc_param;
 		_receiverUID = [_this, 2, "", [""]] call BIS_fnc_param;
 
+		diag_log format ["[INFO] processGroupInvite handling 'kick' of uid %1 by uid %2", _receiverUID, _senderUID];
+
+		
 		{ if (getPlayerUID _x == _receiverUID) exitWith { _target = _x } } forEach (call allPlayers);
 		{ if (getPlayerUID _x == _senderUID) exitWith { _group = group _x } } forEach (call allPlayers);
+		
+		diag_log format ["[INFO] processGroupInvite handling 'kick' found target=%1 group=%2", _target, _group];
+		
 		if (!(side _target in [OPFOR,BLUFOR])) then 
 		{
-			// indy player got kicked ... update his display to show he no longer has ownership of the group's territories
-			["pvar_updateTerritoryMarkers",  [_target, [_group getVariable ["currentTerritories", []], false, side _target, false]]] call fn_publicVariableAll;
-			
 			// remove the player from the currentTerritoryDetails & persistence recs for this group
 			_oldTerritories = _group getVariable ["currentTerritories", []];
-			pvar_convertTerritoryOwner = [_oldTerritories, _group];
-			publicVariableServer "pvar_convertTerritoryOwner";
 
+			diag_log format ["[INFO] processGroupInvite handling 'kick' removing %1 from group owning %2", _target, _oldTerritories];
+			
+			// indy player got kicked ... update his display to show he no longer has ownership of the group's territories
+			["pvar_updateTerritoryMarkers",  [_target, [_oldTerritories, false, side _target, false]]] call fn_publicVariableAll;
+			
 			// call covnertTerritoryOwner to update territory group memberships, save the territory, 
 			[_oldTerritories, _newGroup] call convertTerritoryOwner;
 		};

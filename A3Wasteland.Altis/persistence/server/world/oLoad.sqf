@@ -21,6 +21,8 @@ _strToSide =
 	};
 };
 
+A3W_objectsInVehicles = []; // [vehicleID, _object]; pairs for use in vLoad to complete re-init of R3F_LOG in-vehicle storage
+
 _maxLifetime = ["A3W_objectLifetime", 0] call getPublicVar;
 
 _isWarchestEntry = { [_variables, "a3w_warchest", false] call fn_getFromPairs };
@@ -34,6 +36,13 @@ _objCount = 0;
 _objects = call compile preprocessFileLineNumbers format ["%1\getObjects.sqf", _methodDir];
 
 _exclObjectIDs = [];
+
+if (isNil "R3F_LOG_PUBVAR_point_attache") then {
+	// need to wait for R3F_LOG_AND_ARTY to initialize to attach objects in vehicle to their hiding spot
+	diag_log format ["[INFO] oLoad: waiting for R3F_LOG_PUBVAR_point_attache to become defined"];
+	waitUntil {!isNil "R3F_LOG_PUBVAR_point_attache"}; 
+	diag_log format ["[INFO] oLoad: R3F_LOG_PUBVAR_point_attache defined ... continuing"];
+};
 
 {
 	private ["_allowed", "_obj", "_objectID", "_class", "_pos", "_dir", "_locked", "_damage", "_allowDamage", "_variables", "_weapons", "_magazines", "_items", "_backpacks", "_turretMags", "_ammoCargo", "_fuelCargo", "_repairCargo", "_hoursAlive", "_valid"];
@@ -118,6 +127,28 @@ _exclObjectIDs = [];
 						};
 						default { _value = "[Beacon]" };
 					};
+				};
+				case "R3F_A3W_vehicleID": 
+				{
+					// object is stored in a vehicle ... attach it to R3F_LOG_PUBVAR_point_attache
+					// (code copy from \addons\R3F_ARTY_AND_LOG\R3F_LOG\transporteur\charger_deplace.sqf:
+					private ["_nb_tirage_pos", "_position_attache"];
+					_position_attache = [random 3000, random 3000, (10000 + (random 3000))];
+					_nb_tirage_pos = 1;
+					while {(!isNull (nearestObject _position_attache)) && (_nb_tirage_pos < 25)} do
+					{
+						_position_attache = [random 3000, random 3000, (10000 + (random 3000))];
+						_nb_tirage_pos = _nb_tirage_pos + 1;
+					};
+
+					[R3F_LOG_PUBVAR_point_attache, true] call fn_enableSimulationGlobal;
+					[_obj, true] call fn_enableSimulationGlobal;
+					_obj attachTo [R3F_LOG_PUBVAR_point_attache, _position_attache];
+					
+					A3W_objectsInVehicles pushBack [_value,_obj];  // [vehicleID, _object];
+					
+					// do the rest of the processing when vLoad runs
+					
 				};
 			};
 
@@ -213,7 +244,7 @@ if (_warchestMoneySavingOn) then
 	publicVariable "pvar_warchest_funds_east";
 };
 
-diag_log format ["A3Wasteland - world persistence loaded %1 objects from %2", _objCount, call A3W_savingMethodName];
+diag_log format ["A3Wasteland - world persistence loaded %1 objects from %2 with %3 objects in vehicles", _objCount, call A3W_savingMethodName, count A3W_objectsInVehicles];
 
 fn_deleteObjects = [_methodDir, "deleteObjects.sqf"] call mf_compile;
 _exclObjectIDs call fn_deleteObjects;

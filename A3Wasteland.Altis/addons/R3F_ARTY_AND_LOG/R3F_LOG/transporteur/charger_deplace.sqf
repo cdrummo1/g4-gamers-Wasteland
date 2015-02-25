@@ -7,6 +7,7 @@
  * You should have received a copy of the GNU General Public License
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
+private ["_object", "_carrier", "_objects_charges", "_chargement_actuel", "_i", "_cout_capacite_object", "_chargement_maxi", "_position_attache", "_nb_tirage_pos"];
 
 if (R3F_LOG_mutex_local_verrou) then
 {
@@ -20,7 +21,7 @@ else
 
 	_object = R3F_LOG_joueur_deplace_objet;
 
-	_carrier = nearestObjects [_object, R3F_LOG_classes_carriers, 22];
+	_carrier = nearestObjects [_object, R3F_LOG_classes_transporteurs, 22];
 	// Because the carrier can be a transportable object
 	_carrier = _carrier - [_object];
 
@@ -58,11 +59,11 @@ else
 
 			// Research the maximum capacity of the carrier
 			_chargement_maxi = 0;
-			for [{_i = 0}, {_i < count R3F_LOG_CFG_carriers}, {_i = _i + 1}] do
+			for [{_i = 0}, {_i < count R3F_LOG_CFG_transporteurs}, {_i = _i + 1}] do
 			{
-				if (_carrier isKindOf (R3F_LOG_CFG_carriers select _i select 0)) exitWith
+				if (_carrier isKindOf (R3F_LOG_CFG_transporteurs select _i select 0)) exitWith
 				{
-					_chargement_maxi = (R3F_LOG_CFG_carriers select _i select 1);
+					_chargement_maxi = (R3F_LOG_CFG_transporteurs select _i select 1);
 				};
 			};
 

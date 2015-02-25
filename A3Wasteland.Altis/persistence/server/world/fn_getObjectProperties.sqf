@@ -6,7 +6,7 @@
 
 #include "functions.sqf"
 
-private ["_obj", "_class", "_pos", "_dir", "_damage", "_allowDamage", "_variables", "_owner", "_weapons", "_magazines", "_items", "_backpacks", "_turretMags", "_ammoCargo", "_fuelCargo", "_repairCargo"];
+private ["_obj", "_class", "_pos", "_dir", "_damage", "_allowDamage", "_variables", "_r3fvehicle", "_owner", "_weapons", "_magazines", "_items", "_backpacks", "_turretMags", "_ammoCargo", "_fuelCargo", "_repairCargo"];
 _obj = _this select 0;
 
 _class = typeOf _obj;
@@ -37,6 +37,20 @@ if (_owner != "") then
 {
 	_variables pushBack ["ownerUID", _owner];
 };
+
+// push the ID of the vehicle that the object is stored in with R3F
+_r3fvehicle = _obj getVariable "R3F_LOG_est_transporte_par";
+if (!(isNil "_r3fvehicle")) then {
+	if (!isNull _r3fvehicle) then 
+	{
+		_r3fvehicleID = _r3fvehicle getVariable "A3W_vehicleID";	
+		_variables pushBack ["R3F_A3W_vehicleID", _r3fvehicleID ];
+		diag_log format ["[INFO] fn_getObjectProperties for object %1 set variable R3F_A3W_vehicleID=%2",_obj,_r3fvehicleID];
+	} else {
+		diag_log format ["[WARN] fn_getObjectProperties for object %1 has R3F_LOG_est_transporte_par but is empty!",_obj];
+	};
+};
+
 
 switch (true) do
 {
