@@ -1,6 +1,6 @@
 -- -------------
 -- Version 2.04 updates:
--- Change to support territory persistence and capture logging
+-- Changes to support territory persistence, capture logging and donator levels
 -- ------------
 
 SET @OLD_UNIQUE_CHECKS=@@UNIQUE_CHECKS, UNIQUE_CHECKS=0;
@@ -11,6 +11,13 @@ SET @OLD_SQL_MODE=@@SQL_MODE, SQL_MODE='TRADITIONAL,ALLOW_INVALID_DATES';
 -- Schema a3wasteland
 -- -----------------------------------------------------
 USE `a3wasteland` ;
+
+
+-- -----------------------------------------------------
+-- Update Table `playerinfo` to add DonatorLevel field
+-- -----------------------------------------------------
+ALTER TABLE `playerinfo` 
+  ADD `DonatorLevel` INT NULL DEFAULT '0' AFTER BankMoney;
 
 -- -----------------------------------------------------
 -- Table `territorycapturestatus`
@@ -66,6 +73,7 @@ DEFAULT CHARACTER SET = latin1;
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
 SET UNIQUE_CHECKS=@OLD_UNIQUE_CHECKS;
+
 
 -- -----------------------------------------------------
 -- Data for table `DBInfo`
