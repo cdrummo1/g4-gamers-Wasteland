@@ -127,7 +127,7 @@ _exclVehicleIDs = [];
 			{
 				case "R3F_A3W_objectIDs":
 				{
-					// vehicle has objects stored in it that have be re-initialized in oLoad
+					// vehicle has objects stored in it that have been re-initialized in oLoad
 					diag_log format ["[INFO] vLoad has vehicle with ID=%1 R3F_A3W_objectIDs set & containing %1",_vehicleID, _val];
 					// get the object(s) matching this vehicleID in A3W_objectsInVehicles : [vehicleID, _object];
 					_objectsInVehicle = [A3W_objectsInVehicles, {_x select 0 == _vehicleID}] call BIS_fnc_conditionalSelect;
