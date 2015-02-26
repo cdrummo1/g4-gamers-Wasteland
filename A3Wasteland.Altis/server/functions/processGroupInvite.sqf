@@ -45,7 +45,7 @@ switch (_type) do
 		_oldGroup =  [_this, 2, grpNull, [""]] call BIS_fnc_param;
 		_newGroup =  [_this, 3, grpNull, [""]] call BIS_fnc_param;
 		
-		diag_log format ["[INFO] processGroupInvite handling 'accept' by uid %1 from group %1 into group %2", _receiverUID, _oldGroup, _newGroup];
+		diag_log format ["[INFO] processGroupInvite handling 'accept' by uid %1 from group %2 into group %3", _receiverUID, _oldGroup, _newGroup];
 		
 		// Clear any invites sent from or to him
 		{
@@ -73,27 +73,25 @@ switch (_type) do
 				// the invitee brought some territories with them
 				diag_log format ["[INFO] processGroupInvite uid %1 has oldTerritories='%2'", _receiverUID, _oldTerritories];
 				
+				// add the invitees territories to the group's list of territories
 				{ _newTerritories pushBack _x;} forEach _oldTerritories;
 				
 				diag_log format ["[INFO] processGroupInvite group %1 territories updated to '%2'", _newGroup, _newTerritories];
 				
 				_newGroup setVariable ["currentTerritories", _newTerritories, true];
 
-				// call covnertTerritoryOwner to update territory group memberships, save the territory, 
+				// call covnertTerritoryOwner to update territory group memberships, and save the territory, 
 				[_newTerritories, _newGroup] call convertTerritoryOwner;
-
 			};
 
 			// re-broadcast group territories owned to all of the group members
-			["pvar_updateTerritoryMarkers", [_newGroup, [[_newTerritories], false, side _newGroup, true]]] call fn_publicVariableAll;
+			["pvar_updateTerritoryMarkers", [_newGroup, [_newTerritories, false, side _newGroup, true]]] call fn_publicVariableAll;
 
 			if (!isNull _oldGroup) then
 			{
 				_oldGroup setVariable ["currentTerritories", [], true];
 			};
-			
 		};
-		
 	};
 	case "decline":
 	{
@@ -137,7 +135,7 @@ switch (_type) do
 			["pvar_updateTerritoryMarkers",  [_target, [_oldTerritories, false, side _target, false]]] call fn_publicVariableAll;
 			
 			// call covnertTerritoryOwner to update territory group memberships, save the territory, 
-			[_oldTerritories, _newGroup] call convertTerritoryOwner;
+			[_oldTerritories, _group] call convertTerritoryOwner;
 		};
 	};
 };

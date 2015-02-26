@@ -41,8 +41,11 @@ if (count _r3fObjects > 0) then {
 	_r3fObjectIDs=[];
 	{
 		_r3fObjectIDs pushBack (_x getVariable "A3W_objectID");
+		diag_log format ["[INFO] fn_getVehicleProperties for vehicle %1  has %2 loaded objects. Adding objectID %2",_veh,count _r3fObjects,(_x getVariable "A3W_objectID")];
+
 	} forEach _r3fObjects;
 	_variables pushBack ["R3F_A3W_objectIDs", _r3fObjectIDs];
+	diag_log format ["[INFO] fn_getVehicleProperties for vehicle %1: _variables[R3F_A3W_objectIDs]=%2",_veh,_r3fObjectIDs];
 };
 
 switch (true) do

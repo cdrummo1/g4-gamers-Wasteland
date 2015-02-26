@@ -216,6 +216,8 @@ _onCaptureFinished =
 	{
 		_groupCaptures = (_captureObj getVariable ["currentTerritories", []]) + [_captureName];
 		_captureObj setVariable ["currentTerritories", _groupCaptures, true];
+		
+		diag_log format ["[INFO] monitorTerritories:  capturing Group 'currentTerritories' = %1", (_captureObj getVariable ["currentTerritories", []])];
 	};
 
 	["pvar_updateTerritoryMarkers", [_captureObj, [[_captureName], false, _captureTeam, true]]] call fn_publicVariableAll;
@@ -380,7 +382,7 @@ _updatePlayerTerritoryActivity =
 			{
 				// Set a variable on them to indicate blocked capping
 				// We split a BLOCK state into defenders and attackers
-				if (_currentTerritoryOwner isEqualTo _playerTeam) && (_currentTerritoryOwnerGroup isEqualTo _playerGroup) then 
+				if ((_currentTerritoryOwner isEqualTo _playerTeam) && (_currentTerritoryOwnerGroup isEqualTo _playerGroup)) then 
 				{
 					_territoryActivity set [0, "BLOCKEDDEFENDER"];
 				}
@@ -563,7 +565,7 @@ _handleCapPointTick = {
 						};
 					};
 					
-					// Increase player capture score
+					// Increase player's capture score
 					{
 						if ([_x, _newDominantTeam, _newDominantGroup] call _isInTeam) then
 						{

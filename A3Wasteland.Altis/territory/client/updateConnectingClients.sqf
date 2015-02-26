@@ -15,7 +15,7 @@ if (!isServer) exitWith {};
 if (isNil "currentTerritoryDetails" || {count currentTerritoryDetails == 0}) exitWith {};
 
 private ["_player", "_playerUID", "_playerTeam", "_playerGroup", "_JIP", "_markers", "_newTerritoryOwners", "_newTerritoryDetails", "_markerId", "_markerName", "_markerCaptureUIDs", "_markerCapturePlayers",
- "_markerTeam", "_markerTeam2", "_markerChrono", "_markerTimer", "_markerGroup", "_markerGroupUIDs"];
+ "_markerTeam", "_markerTeam2", "_markerChrono", "_markerTimer", "_markerGroup", "_markerGroupUIDs", "_groupCaptures"];
 
 _player = _this select 0;
 _playerUID = getPlayerUID _player;
@@ -23,11 +23,12 @@ _playerTeam = side _player;
 _playerGroup = group _player;
 _JIP = _this select 1;
 
-diag_log format ["[INFO] updateConnectingClients handling request from [Player: %1] [JIP: %2]", _player, _JIP];
+diag_log format ["[INFO] updateConnectingClients handling request from [Player: %1] [JIP: %2] side=%3 UID=%4", _player, _JIP, _playerTeam, _playerUID];
 
 _markers = [];
 _newTerritoryOwners = [];
 _newTerritoryDetails = [];
+_groupCaptures = [];
 {
 	_found = false;
 	_markerId = _x select 0;	// markerID
@@ -47,6 +48,9 @@ _newTerritoryDetails = [];
 		{
 			if (!(_playerTeam in [BLUFOR,OPFOR])) then 
 			{
+			
+				diag_log format ["[INFO] updateConnectingClients:  %1 held by group %2 with UIDs=%3, capped by UIDs=%4", _markerName, _markerGroup, _markerGroupUIDs, _markerCaptureUIDs];
+			
 				// assign player group membership to the group owning the territory, if the player appears in the _markerGroupUIDs and _markerGroup isn't null
 				if ((_playerUID in [_markerGroupUIDs]) && {!(_markerGroup isEqualTo grpNull)}) then
 				{
@@ -58,8 +62,15 @@ _newTerritoryDetails = [];
 					if (_playerUID in _markerCaptureUIDs) then 
 					{
 						// Indy player previously captured this UID ... assign/re-assign ownership of the marker to this player's group & clear other UIDs
-						_markerGroupUIDs = _playerUID;
+						
+						// add the marker to the player's group's "currentTerritories" var
+						_groupCaptures = (_playerGroup getVariable ["currentTerritories", []]) + [_markerName];
+						_playerGroup setVariable ["currentTerritories", _groupCaptures, true];
+						
+						// set the marker's group ownership to the player's group
 						_markerGroup = _playerGroup;
+						_markerGroupUIDs = _playerUID;
+
 						diag_log format ["[INFO] updateConnectingClients: player %1 UID is in markerCaptureUIDs for %2 -> assigning marker to playerGroup (%3) (PRI 1 Assign)", _player, _markerName, _markerGroup];
 						_found = true;
 					};
@@ -68,8 +79,17 @@ _newTerritoryDetails = [];
 					{
 						// Indy player was previously member of a now non-recognized group that still owns this territory ... re-assign group ownership, but keep other UIDs
 						_markerGroup = _playerGroup;
+						
+						// add the marker to the player's group's "currentTerritories" var
+						_groupCaptures = (_playerGroup getVariable ["currentTerritories", []]) + [_markerName];
+						_playerGroup setVariable ["currentTerritories", _groupCaptures, true];
+						
+						diag_log format ["[INFO] updateConnectingClients: player %1 UID is in markerGroupUIDs for %2 for null group -> assigning marker to player's group (%3) (PRI 3 Assign)", _player, _markerName, _markerGroup];
+
 					};
 				};
+				
+				diag_log format ["[INFO] updateConnectingClients:  playerGroup 'currentTerritories' = %1", (_playerGroup getVariable ["currentTerritories", []])];
 			}; 
 			_markerTeam2 = _markerGroup;  // assign group to team2 for Indy's
 		};

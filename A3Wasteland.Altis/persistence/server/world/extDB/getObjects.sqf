@@ -47,7 +47,6 @@ _objects = [];
 
 {
 	_objData = [];
-
 	{
 		if (!isNil "_x") then
 		{

@@ -128,11 +128,12 @@ _exclVehicleIDs = [];
 				case "R3F_A3W_objectIDs":
 				{
 					// vehicle has objects stored in it that have been re-initialized in oLoad
-					diag_log format ["[INFO] vLoad has vehicle with ID=%1 R3F_A3W_objectIDs set & containing %1",_vehicleID, _val];
+					diag_log format ["[INFO] vLoad for vehicle with ID=%1 R3F_A3W_objectIDs set & containing objectIDs='%2'",_vehicleID, _value];
 					// get the object(s) matching this vehicleID in A3W_objectsInVehicles : [vehicleID, _object];
 					_objectsInVehicle = [A3W_objectsInVehicles, {_x select 0 == _vehicleID}] call BIS_fnc_conditionalSelect;
 					
 					diag_log format ["[INFO] vLoad got back '%1' from conditional select using _vehicleID=%2", _objectsInVehicle];
+					diag_log format ["[INFO] vLoad got back '%1' from loaded R3F_A3W_objectIDs array", _value];
 					
 					_objects_charges = [];
 					{
@@ -209,7 +210,7 @@ _exclVehicleIDs = [];
 	};
 } forEach _vehicles;
 
-diag_log format ["A3Wasteland - world persistence loaded %1 vehicles from %2", _vehCount, call A3W_savingMethodName];
+diag_log format ["A3Wasteland - ********************** world persistence loaded %1 vehicles from %2", _vehCount, call A3W_savingMethodName];
 
 fn_deleteVehicles = [_methodDir, "deleteVehicles.sqf"] call mf_compile;
 _exclVehicleIDs call fn_deleteVehicles;

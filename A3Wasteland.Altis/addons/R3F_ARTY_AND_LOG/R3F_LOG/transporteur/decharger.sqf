@@ -1,5 +1,5 @@
 /**
- * Décharger un objet d'un transporteur - appelé deuis l'interface listant le contenu du transporteur
+ * Unload an object from one carrier 
  *
  * Copyright (C) 2010 madbull ~R3F~
  *
@@ -42,6 +42,9 @@ else
 		_objets_charges = _objets_charges - [_objet_a_decharger];
 		_transporteur setVariable ["R3F_LOG_objets_charges", _objets_charges, true];
 		_objet_a_decharger setVariable ["R3F_LOG_est_transporte_par", objNull, true];
+		_object setVariable  ["objectLocked", false, true];  // needed for persistence
+		_object setVariable ["objectLocked", false, true];
+		_object setVariable ["ownerUID", getPlayerUID player, true];
 		[_objet_a_decharger, true] call fn_enableSimulationGlobal;
 		[R3F_LOG_PUBVAR_point_attache, true] call fn_enableSimulationGlobal;
 

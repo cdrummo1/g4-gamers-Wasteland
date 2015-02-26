@@ -74,7 +74,9 @@ else
 				_objects_charges = _objects_charges + [_object];
 				_carrier setVariable ["R3F_LOG_objets_charges", _objects_charges, true];
 				_object setVariable ["R3F_LOG_est_transporte_par", _carrier, true];
-
+				_object setVariable  ["objectLocked", true, true];  // needed for persistence!
+				_object setVariable ["objectLocked", true, true];
+				_object setVariable ["ownerUID", getPlayerUID player, true];
 				player globalChat STR_R3F_LOG_action_charger_deplace_en_cours;
 
 				// Make releasing the object the player (if it has in " hand " )

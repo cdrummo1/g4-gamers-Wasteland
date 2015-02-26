@@ -94,7 +94,7 @@ while {true} do
 		};
 	} forEach allMissionObjects "All";
 
-	diag_log format ["A3W - %1 baseparts and objects have been saved with %2", _objCount, call A3W_savingMethodName];
+	diag_log format ["A3W - ********************* %1 baseparts and objects have been saved with %2", _objCount, call A3W_savingMethodName];
 
 	if (_warchestMoneySavingOn) then
 	{

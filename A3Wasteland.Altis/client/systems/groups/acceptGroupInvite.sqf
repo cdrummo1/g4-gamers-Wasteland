@@ -38,8 +38,6 @@ if (!isNil "_sender" && {side _newGroup == playerSide}) then
 {
 	_oldGroup = group player;
 
-	{ _newTerritories pushBack _x } forEach _oldTerritories;
-
 	[player] join _newGroup;
 	waitUntil {_newGroup = group player; _newGroup != _oldGroup};
 

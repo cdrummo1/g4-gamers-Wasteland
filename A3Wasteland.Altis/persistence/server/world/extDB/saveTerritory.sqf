@@ -9,6 +9,8 @@ private ["_terRec", "_sideToStr", "_currentTerritoryOccupiersPlayers", "_current
 "_currentTerritoryChrono", "_currentTerritoryGroupHolderString", "_currentTerritoryGroupHolderUIDs", "_props", "_updateValues"];
 _terRec = _this;
 
+diag_log format ["[INFO] saveTerritory called with _this='%1'", _this];
+
 _sideToStr =
 {
 	switch (_this) do
@@ -59,6 +61,9 @@ if (count _currentTerritoryOccupiersUIDs > 0) then {
 };
 
 _updateValues = [_props, 0] call extDB_pairsToSQL;
+
+diag_log format ["[INFO] saveTerritory calling db_async for ID=%1 with '%2'", _currentTerritoryID, _updateValues];
+
 [format ["updateTerritoryCaptureStatus:%1:", _currentTerritoryID] + _updateValues] call extDB_Database_async;
 
 nil

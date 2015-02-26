@@ -44,11 +44,10 @@ if (!(isNil "_r3fvehicle")) then {
 	if (!isNull _r3fvehicle) then 
 	{
 		_r3fvehicleID = _r3fvehicle getVariable "A3W_vehicleID";	
-		diag_log format ["[INFO] fn_getObjectProperties for object %1  in vehicle='%2', set variable R3F_A3W_vehicleID='%2'",_obj,_r3fvehicle,_r3fvehicleID];
+		diag_log format ["[INFO] fn_getObjectProperties for object %1  in vehicle='%2', set variable R3F_A3W_vehicleID='%3'",_obj,_r3fvehicle,_r3fvehicleID];
 		
+		_obj setVariable  ["objectLocked", true, true];  // needed for persistence!
 		_variables pushBack ["R3F_A3W_vehicleID", _r3fvehicleID ];
-	} else {
-		diag_log format ["[WARN] fn_getObjectProperties for object %1 has R3F_LOG_est_transporte_par but is empty!",_obj];
 	};
 };
 

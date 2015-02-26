@@ -56,7 +56,7 @@ _territories = [];
 	{
 		if (!isNil "_x") then
 		{
-			//diag_log format ["    setting _terData elem [%1,%2]", (_vars select _forEachIndex) select 1, _x];
+			diag_log format ["    setting _terData elem [%1,%2]", (_vars select _forEachIndex) select 1, _x];
 			_terData pushBack [(_vars select _forEachIndex) select 1, _x];
 		};
 	} forEach _x;

@@ -146,9 +146,8 @@ if (isNil "R3F_LOG_PUBVAR_point_attache") then {
 					_obj attachTo [R3F_LOG_PUBVAR_point_attache, _position_attache];
 					
 					A3W_objectsInVehicles pushBack [_value,_obj];  // [vehicleID, _object];
-					
+					diag_log format ["[INFO] oLoad of object ID %1 found R3F_A3W_vehicleID=%2 ... obj attached and added to A3W_objectsInVehicles as [%3,%4]", _objectID, _value, _value,_obj];
 					// do the rest of the processing when vLoad runs
-					
 				};
 			};
 
@@ -187,7 +186,7 @@ if (isNil "R3F_LOG_PUBVAR_point_attache") then {
 		{
 			_obj setVariable ["objectLocked", false, true];
 		};
-
+		
 		if (_boxSavingOn && {_class call _isBox}) then
 		{
 			if (!isNil "_weapons") then
@@ -244,7 +243,7 @@ if (_warchestMoneySavingOn) then
 	publicVariable "pvar_warchest_funds_east";
 };
 
-diag_log format ["A3Wasteland - world persistence loaded %1 objects from %2 with %3 objects in vehicles", _objCount, call A3W_savingMethodName, count A3W_objectsInVehicles];
+diag_log format ["A3Wasteland - *********************  world persistence loaded %1 objects from %2 with %3 objects in vehicles", _objCount, call A3W_savingMethodName, count A3W_objectsInVehicles];
 
 fn_deleteObjects = [_methodDir, "deleteObjects.sqf"] call mf_compile;
 _exclObjectIDs call fn_deleteObjects;
