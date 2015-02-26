@@ -12,13 +12,12 @@
 // These two different invocations get different arguments to process:
 //	Methods 1 & 3: 
 //  		1.a. ["pvar_updateTerritoryMarkers", [_captureTeam, [[_captureName], false, _captureTeam, true]]] call fn_publicVariableAll;
-//			Args:  [[_captureName], false, _captureTeam, true] *
+//			Args:  [[_captureName], false, _captureTeam, true] 
 //		1.b. ["pvar_updateTerritoryMarkers", [_otherTeams, [[_captureName], false, _captureTeam, false]]] call fn_publicVariableAll;
-//			Args: [[_captureName], false, _captureTeam, false] *
-//		1.c  pvar_updateTerritoryMarkers = [_target, [_group getVariable ["currentTerritories", []], false, _targetSide, false]]; (Indy kickFromGroup)
-//			Args:  [_group getVariable ["currentTerritories", []], false, _targetSide, false]  (Indy kickFromGroup) *
-//		3.a  [_newTerritories, false, side _newGroup, true] call updateTerritoryMarkers;  (Indy acceptGroupInvite)  -- add territories *
-//		3.b  [_oldGroup getVariable ["currentTerritories", []], false, _team, false] call updateTerritoryMarkers; (Indy leaveGroup)) -- remove territories *
+//			Args: [[_captureName], false, _captureTeam, false] 
+//		1.c  pvar_updateTerritoryMarkers = [_target, [_group getVariable ["currentTerritories", []], false, _targetSide, false]]; 
+//			Args:  [_group getVariable ["currentTerritories", []], false, _targetSide, false]  (Indy kickFromGroup, leaveGroup) 
+//		3.a  Args: [_newTerritories, false, side _newGroup, true] call updateTerritoryMarkers;  (Indy acceptGroupInvite)  -- add territories 
 //
 //	Method 2:  [_markers, true], where _markers is an array of [_markerName, _markerTeam, _markerGroup] (remote execVM from server updateConnectingClients)
 //			Args: [[_markerName, _markerTeam, _markerGroup], true]

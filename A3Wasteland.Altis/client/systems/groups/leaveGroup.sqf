@@ -7,21 +7,15 @@
 //	@file Created: 20/11/2012 05:19
 //  @file Modified: Munch 2015-02-20 revise to handle server-side group ownerships of territories
 
-private ["_oldTeam", "_oldTerritories"];
+private ["_oldGroup", "_playerUID"];
 
 _oldGroup = group player;
-
-if (!(_oldTeam in [OPFOR,BLUFOR])) then 
-{
-	[_oldGroup getVariable ["currentTerritories", []], false, side _oldGroup, false] call updateTerritoryMarkers;
-};
 
 [player] join grpNull;
 player setVariable ["currentGroupRestore", grpNull, true];
 player setVariable ["currentGroupIsLeader", false, true];
 
-// remove the player from the currentTerritoryDetails & persistence recs for this group
-_oldTerritories = _oldGroup getVariable ["currentTerritories", []];
-pvar_convertTerritoryOwner = [_oldTerritories, _oldGroup];
-publicVariableServer "pvar_convertTerritoryOwner";
+// have the server remove the player from territory ownerships
+pvar_processGroupInvite = ["leave", player, _oldGroup];
+publicVariableServer "pvar_processGroupInvite";
 

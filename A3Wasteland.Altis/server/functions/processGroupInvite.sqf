@@ -123,7 +123,8 @@ switch (_type) do
 		{ if (getPlayerUID _x == _senderUID) exitWith { _group = group _x } } forEach (call allPlayers);
 		
 		diag_log format ["[INFO] processGroupInvite handling 'kick' found target=%1 group=%2", _target, _group];
-		
+
+		// Handling for independents
 		if (!(side _target in [OPFOR,BLUFOR])) then 
 		{
 			// remove the player from the currentTerritoryDetails & persistence recs for this group
@@ -138,4 +139,37 @@ switch (_type) do
 			[_oldTerritories, _group] call convertTerritoryOwner;
 		};
 	};
+	case "leave":
+	{
+		// pvar_processGroupInvite = ["leave", player, _oldGroup];
+		_oldGroup = [_this, 1, "", [""]] call BIS_fnc_param;
+		_player = [_this, 2, "", [""]] call BIS_fnc_param;
+
+		diag_log format ["[INFO] processGroupInvite handling 'leave' of player %1 from group %2", _player, _oldGroup];
+
+		
+		{ if (getPlayerUID _x == _receiverUID) exitWith { _target = _x } } forEach (call allPlayers);
+		{ if (getPlayerUID _x == _senderUID) exitWith { _group = group _x } } forEach (call allPlayers);
+
+		// Handling for independents
+		if (!(side _target in [OPFOR,BLUFOR])) then 
+		{
+			// find territories owned by the _oldGroup that the player captured
+			
+			// subtract those territories from the _oldGroups current territories set
+		
+			// give the territories 'back' to the _player
+		
+			// remove the player from the currentTerritoryDetails & persistence recs for this group
+			_oldTerritories = _oldGroup getVariable ["currentTerritories", []];
+
+			diag_log format ["[INFO] processGroupInvite handling 'leave' removing %1 from group ownership of:  %2", _target, _oldTerritories];
+			
+			// indy player got kicked ... update his display to show he no longer has ownership of the group's territories
+			["pvar_updateTerritoryMarkers",  [_player, [_oldTerritories, false, side _player, false]]] call fn_publicVariableAll;
+			
+			// call covnertTerritoryOwner to update territory group memberships, save the territory, 
+			[_oldTerritories, _oldGroup] call convertTerritoryOwner;
+		};
+	};	
 };
