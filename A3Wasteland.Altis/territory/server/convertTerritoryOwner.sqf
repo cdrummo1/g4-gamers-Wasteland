@@ -5,8 +5,9 @@
 //	@file Author: AgentRev
 //  @file Modified: Munch 2015-02-20 to handle server-side group ownerships of territories changes
 
-private ["_newTerritories", "_newGroup", "_territory", "_territorySavingOn", "_currentTerritoryID", "_currentTerritoryName", "_currentTerritoryOccupiersPlayers", "_currentTerritoryOcupiersUIDs",
-"_currentTerritoryOwner", "_currentTerritoryChrono", "_currentTerritoryOwnerGroupUIDs", "_currentTerritoryOwnerGroup"];
+private ["_newTerritories", "_newGroup", "_newTerritoryOwnerGroupUIDs", "_territorySavingOn", "_newTerritoryDetails", "_newTerritoryOwners", "_currentTerritoryID", "_currentTerritoryName", 
+"_currentTerritoryOccupiersUIDs", "_currentTerritoryOccupiersPlayers", "_currentTerritoryOwner", "_currentTerritoryChrono", "_currentTerritoryTimer", "_currentTerritoryOwnerGroup", "_currentTerritoryOwnerGroupUIDs", 
+"_currentTerritoryOcupiersUIDs"];
 
 _newTerritories = _this select 0;
 _newGroup = _this select 1;
@@ -20,6 +21,7 @@ _newTerritoryOwnerGroupUIDs = [];
 	};
 } forEach (units _newGroup);
 
+_territorySavingOn = ["A3W_territorySaving"] call isConfigOn;
 
 diag_log format ["[INFO] convertTerritoryOwner called with _newTerritories='%1'  _newGroup='%2'",_newTerritories, _newGroup];
 diag_log format ["[INFO] convertTerritoryOwner _newGroup has the following UIDs: %1", _newTerritoryOwnerGroupUIDs];
