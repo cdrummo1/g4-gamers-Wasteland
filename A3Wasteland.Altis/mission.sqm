@@ -116,7 +116,7 @@ class Mission
 	randomSeed=14957468;
 	class Intel
 	{
-		briefingName="A3Wasteland Altis v1.1 Ver. g4-1.4";
+		briefingName="A3Wasteland Altis v1.1 Ver. g4-1.5";
 		overviewText="Wasteland survival sandbox by Team Wasteland - visit A3Wasteland.com for more details";
 		resistanceWest=0;
 		startWeather=0.10000001;
@@ -128,7 +128,8 @@ class Mission
 		forecastLightnings=0.30000001;
 		year=2035;
 		month=6;
-		hour=6;
+		day=11;
+		hour=18;
 		minute=0;
 		startFogDecay=0.0029333001;
 		forecastFogDecay=0.0039332998;

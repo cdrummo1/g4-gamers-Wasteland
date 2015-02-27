@@ -73,7 +73,7 @@ _newTerritoryOwners=[];
 				if (_territorySavingOn) then 
 				{
 					// call fn_saveTerritory to persist the newly changed territory state, if persistence is on
-					[_currentTerritoryID, _currentTerritoryName, _currentTerritoryOcupiersUIDs, _currentTerritoryOwner, _currentTerritoryChrono, _newGroup, _newTerritoryOwnerGroupUIDs] call fn_saveTerritory;
+					[_currentTerritoryID, _currentTerritoryName, _currentTerritoryOccupiersUIDs, _currentTerritoryOwner, _currentTerritoryChrono, _newGroup, _newTerritoryOwnerGroupUIDs] call fn_saveTerritory;
 					diag_log format ["convertTerritoryOwner updated territory data with [%1,%2,%3,%4,%5,%6,%7]",_currentTerritoryID, _currentTerritoryName, _currentTerritoryOcupiersUIDs, _currentTerritoryOwner, _currentTerritoryChrono, _newGroup, _newTerritoryOwnerGroupUIDs];
 				};
 			};
